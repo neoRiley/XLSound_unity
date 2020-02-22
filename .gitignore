@@ -1,0 +1,11 @@
+Temp
+Library
+.vs
+obj
+.DS_Store
+*.csproj
+*.sln
+Assets/3D*
+Assets/StreamingAssets/AssetBundles/catalog_*
+Assets/AddressableAssetsData/AssetGroups/Schemas/*
+Builders/logs/*
