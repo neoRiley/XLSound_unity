@@ -54,9 +54,9 @@ MonoBehaviour:
   autoPlay: 0
   loop: 0
   snapshot: {fileID: 24500006, guid: c953920567215534d8f9954c08708b68, type: 2}
-  tags: 0
-  tagsList: 
-  prefabPath: 
+  tags: 4096
+  tagsList: WallLight
+  prefabPath: Assets/Audio/Resources/XLSoundPrefabs/plastic_tap_0_23.prefab
 --- !u!82 &6134811142077807172
 AudioSource:
   m_ObjectHideFlags: 0

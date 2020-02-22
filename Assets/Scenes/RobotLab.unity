@@ -31259,6 +31259,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   soundList: 110000000d00000012000000100000000e000000170000001800000019000000
+  mode: 1
 --- !u!4 &2128969789
 Transform:
   m_ObjectHideFlags: 0
@@ -31286,6 +31287,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   soundList: 0c0000000f00000016000000
+  mode: 1
 --- !u!1001 &2136603079
 PrefabInstance:
   m_ObjectHideFlags: 0

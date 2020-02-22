@@ -34,7 +34,11 @@ namespace XavierLab
         protected string soundName = "";
         public string SoundName
         {
-            get => soundName;
+            get
+            {
+                if(String.IsNullOrEmpty(soundName)) soundName = gameObject.name;
+                return soundName;
+            }
             set
             {
                 nameChanged = true;
@@ -100,6 +104,15 @@ namespace XavierLab
         [SerializeField]
         [HideInInspector]
         public string prefabPath;
+
+        public Sounds Sound
+        {
+            get
+            {
+                L.Log(LogEventType.STRING, $"Sound: {SoundName}");
+                return ConversionUtils.GetEnumForString<Sounds>(SoundName);
+            }
+        }
 
         void Awake()
         {

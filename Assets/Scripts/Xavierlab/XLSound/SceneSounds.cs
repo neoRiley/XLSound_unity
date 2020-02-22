@@ -8,10 +8,11 @@ namespace XavierLab
     public class SceneSounds : MonoBehaviour
     {
         public List<Sounds> soundList;
+        public LoadSceneMode mode = LoadSceneMode.Single;
 
         public void Awake()
         {
-            if(isActiveAndEnabled && soundList.Count > 0) XLSound.LoadSoundsForScene(soundList, LoadSceneMode.Additive);
+            if(isActiveAndEnabled && soundList.Count > 0) XLSound.LoadSoundsForScene(soundList, mode);
         }
 
         public void OnDisable()

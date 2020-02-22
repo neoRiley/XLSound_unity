@@ -57,6 +57,10 @@ namespace XavierLab
         }
 
 
+        /// <summary>
+        /// Play a sound.
+        /// </summary>
+        /// <param name="sound"></param>
         public static void PlaySound(Sounds sound)
         {
             AudioSource audio = GetAudioSourceForSound(sound);
@@ -68,19 +72,76 @@ namespace XavierLab
         }
 
 
-        public static void PlaySoundAtPosition(Sounds sound, Vector3 position)
+        /// <summary>
+        /// Play a sound with a transition/snapshot.
+        /// </summary>
+        /// <param name="sound"></param>
+        /// <param name="duration"></param>
+        public static void PlaySound(Sounds sound, float duration = 2.0f)
         {
-            AudioSource audio = GetAudioSourceForSound(sound);
-            if (audio != null)
+            SoundClip soundClip = GetSoundClipForSound(sound);
+            if (soundClip.snapshot != null)
             {
-                SoundClip soundClip = GetSoundClipForSound(sound);
-                if(soundClip != null)
+                soundClip.snapshot.TransitionTo(duration);
+                PlaySound(sound);
+            }
+            else L.Log(LogEventType.ERROR, $"Transition not found for {sound} is null");
+        }
+
+
+        /// <summary>
+        /// Play the sound at a certain position in the scene.  Typically, a sound is not assigned
+        /// to any tag name, so there is only the single instance to play.
+        /// </summary>
+        /// <param name="sound"></param>
+        /// <param name="position"></param>
+        public static void PlaySound(Sounds sound, Vector3 position)
+        {            
+            SoundClip soundClip = GetSoundClipForSound(sound);
+            if(soundClip != null)
+            {
+                soundClip.transform.position = position;
+                PlaySound(sound);
+            }           
+            else L.Log(LogEventType.ERROR, $"Audio source for {sound} is null");
+        }
+
+
+        /// <summary>
+        /// Play all sounds assigned to the tag name passed in.
+        /// </summary>
+        /// <param name="tagName"></param>
+        public static void PlaySound(string tagName)
+        {
+            var clips = GetSoundClipsForTag(tagName);
+
+            if (clips.Count > 0)
+            {                
+                foreach(SoundClip clip in clips)
                 {
-                    soundClip.transform.position = position;
-                    audio.Play();
+                    PlaySound(clip.Sound);
                 }
             }
-            else L.Log(LogEventType.ERROR, $"Audio source for {sound} is null");
+        }
+
+
+        /// <summary>
+        /// Play a sound attached to this game Object.  If you set a tag for a soundclip, it will be parented
+        /// to a GameObject and that object can be passed in to play the sound.
+        /// </summary>
+        /// <param name="obj"></param>
+        public static void PlaySound(GameObject obj)
+        {
+            AudioSource audio = obj.GetComponent<AudioSource>();
+            if(audio == null)
+            {
+                audio = obj.GetComponentInChildren<AudioSource>();
+                if (audio != null)
+                {
+                    audio.Play();
+                }
+                else L.Log(LogEventType.ERROR, $"No audioSource component found on {obj.name}");
+            }
         }
 
 
@@ -95,19 +156,48 @@ namespace XavierLab
         }
 
 
-        public static void PlaySoundWithSnapshot(Sounds sound, float duration = 2.0f)
+        /// <summary>
+        /// Stop all sounds assigned to the tag name passed in.
+        /// </summary>
+        /// <param name="tagName"></param>
+        public static void StopSound(string tagName)
         {
-            AudioSource audio = GetAudioSourceForSound(sound);
-            if (audio != null)
+            var clips = GetSoundClipsForTag(tagName);
+
+            if (clips.Count > 0)
             {
-                SoundClip soundClip = GetSoundClipForSound(sound);
-                if (soundClip.snapshot != null) soundClip.snapshot.TransitionTo(duration);
-                audio.Play();
+                foreach (SoundClip clip in clips)
+                {
+                    StopSound(clip.Sound);
+                }
             }
-            else L.Log(LogEventType.ERROR, $"Audio source for {sound} is null");
+        }
+
+        /// <summary>
+        /// Stop sound parented to this GameObject.
+        /// </summary>
+        /// <param name="obj"></param>
+        public static void StopSound(GameObject obj)
+        {
+            AudioSource audio = obj.GetComponent<AudioSource>();
+            if (audio == null)
+            {
+                audio = obj.GetComponentInChildren<AudioSource>();
+                if (audio != null)
+                {
+                    audio.Stop();
+                }
+                else L.Log(LogEventType.ERROR, $"No audioSource component found on {obj.name}");
+            }
         }
 
 
+        /// <summary>
+        /// Pass a List<Sounds> list to have prefab Sounds loaded.  Use SceneSounds component on a
+        /// GameObject in the scene or call this directly.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="mode"></param>
         public static void LoadSoundsForScene(List<Sounds> list, LoadSceneMode mode = LoadSceneMode.Single)
         {
             if(soundsContainer == null)
@@ -231,6 +321,32 @@ namespace XavierLab
                 }
             }
         }
+
+
+        static List<SoundClip> GetSoundClipsForTag(string tagName)
+        {
+            GameObject[] gos = GameObject.FindGameObjectsWithTag(tagName);
+            List<SoundClip> clips = new List<SoundClip>();
+
+            if (gos.Length > 0)
+            {
+                List<GameObject> list = new List<GameObject>(gos);
+                list = list.Where(x =>
+                {
+                    var soundClip = x.GetComponentInChildren<SoundClip>();
+                    if (soundClip != null && soundClip.tagsList.Contains(tagName))
+                    {
+                        clips.Add(soundClip);
+                        return true;
+                    }
+                    return false;
+                }).ToList();
+
+            }
+
+            return clips;
+        }
+
 
         static AudioSource GetAudioSourceForSound(Sounds sound)
         {

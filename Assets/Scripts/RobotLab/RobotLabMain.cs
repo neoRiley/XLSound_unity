@@ -16,7 +16,12 @@ public class RobotLabMain : MonoBehaviour
         CreateTurbineTaps();
 
         TestMusic();
-        //XLSound.PlaySoundWithSnapshot(Sounds.My_Song_6_12, 10.0f);
+        //XLSound.PlaySoundWithTag("WallLight");
+
+        //Timers.AsyncSetTimeout(5.0f, (x) =>
+        //{
+        //    XLSound.StopSoundWithTag("WallLight");
+        //});
     }
 
 
@@ -29,7 +34,7 @@ public class RobotLabMain : MonoBehaviour
             g.AddComponent<BoxCollider>();
             var handler = g.AddComponent<WallLightClickHandler>();
             handler.OnTap += (GameObject obj) => {
-                XLSound.PlaySoundAtPosition(Sounds.plastic_tap_0_23, obj.transform.position);
+                XLSound.PlaySound(obj);
             };
         }
     }
@@ -43,7 +48,7 @@ public class RobotLabMain : MonoBehaviour
             g.AddComponent<BoxCollider>();
             var handler = g.AddComponent<WindowClickHandler>();
             handler.OnTap += (GameObject obj) => {
-                XLSound.PlaySoundAtPosition(Sounds.window_tap_0_25, obj.transform.position);
+                XLSound.PlaySound(Sounds.window_tap_0_25, obj.transform.position);
             };
         }
     }
@@ -55,7 +60,7 @@ public class RobotLabMain : MonoBehaviour
         collider.center = Vector3.zero;
         var lHandler = t.AddComponent<TurbineClickHandler>();
         lHandler.OnTap += (GameObject obj) => {
-            XLSound.PlaySoundAtPosition(Sounds.metal_bang_3_24, obj.transform.position);
+            XLSound.PlaySound(Sounds.metal_bang_3_24, obj.transform.position);
         };
 
         t = GameObject.FindGameObjectWithTag("Turbine_Right");
@@ -63,7 +68,7 @@ public class RobotLabMain : MonoBehaviour
         collider.center = Vector3.zero;
         var rHandler = t.AddComponent<TurbineClickHandler>();
         rHandler.OnTap += (GameObject obj) => {
-            XLSound.PlaySoundAtPosition(Sounds.metal_bang_3_24, obj.transform.position);
+            XLSound.PlaySound(Sounds.metal_bang_3_24, obj.transform.position);
         };
     }
 
@@ -94,21 +99,21 @@ public class RobotLabMain : MonoBehaviour
     {
         int musicIndex = 1;
         
-        XLSound.PlaySoundWithSnapshot(Sounds.My_Song_6_12, 5.0f);
+        XLSound.PlaySound(Sounds.My_Song_6_12, 5.0f);
 
-        Timers.AsyncSetTimeout(30.0f, (x) =>
+        Timers.AsyncSetTimeout(30.0f, (Action<BaseTimer>)((x) =>
         {
             L.Log(LogEventType.EVENT, $"Should switch Music: {musicIndex}");
             if( musicIndex.Equals(0))
-                XLSound.PlaySoundWithSnapshot(Sounds.My_Song_6_12, 7.0f);
+                XLSound.PlaySound((Sounds)Sounds.My_Song_6_12, 7.0f);
             else if (musicIndex.Equals(1))
-                XLSound.PlaySoundWithSnapshot(Sounds.XWingsAttack_complete_master_15, 7.0f);
+                XLSound.PlaySound((Sounds)Sounds.XWingsAttack_complete_master_15, 7.0f);
             else if (musicIndex.Equals(2))
-                XLSound.PlaySoundWithSnapshot(Sounds.ExhaustPort_complete_master_22, 7.0f);
+                XLSound.PlaySound((Sounds)Sounds.ExhaustPort_complete_master_22, 7.0f);
 
             musicIndex++;
             musicIndex = musicIndex > 2 ? 0 : musicIndex;
-        }, true);
+        }), true);
     }
 
 
