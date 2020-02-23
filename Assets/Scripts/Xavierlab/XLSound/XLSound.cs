@@ -198,7 +198,7 @@ namespace XavierLab
         /// </summary>
         /// <param name="list"></param>
         /// <param name="mode"></param>
-        public static void LoadSoundsForScene(List<Sounds> list, LoadSceneMode mode = LoadSceneMode.Single)
+        public static void LoadSoundsForScene(List<Sounds> list)
         {
             if(soundsContainer == null)
             {
@@ -213,10 +213,10 @@ namespace XavierLab
             {
                 // remove items in currentSounds from list
                 toBeAdded = list.Except(currentSounds).ToList();
-                if(mode.Equals(LoadSceneMode.Single)) toBeRemoved = currentSounds.Except(list).ToList();
+                //if(mode.Equals(LoadSceneMode.Single)) toBeRemoved = currentSounds.Except(list).ToList();
 
-                L.Log(LogEventType.NORMAL, $"toBeAdded: {String.Join(", ", toBeAdded)}");
-                L.Log(LogEventType.NORMAL, $"toBeRemoved: {String.Join(", ", toBeRemoved)}");
+                //L.Log(LogEventType.NORMAL, $"toBeAdded: {String.Join(", ", toBeAdded)}");
+                //L.Log(LogEventType.NORMAL, $"toBeRemoved: {String.Join(", ", toBeRemoved)}");
             }
             else
             {
@@ -227,17 +227,17 @@ namespace XavierLab
             L.Log(LogEventType.STRING, $"toBeAdded: {String.Join(", ", toBeAdded)}", true);
             L.Log(LogEventType.STRING, $"currentSounds: {String.Join(", ", currentSounds)}", true);
 
-            if ( toBeRemoved.Count > 0 )
-            {
-                foreach (Sounds sound in toBeRemoved)
-                {
-                    if (soundPointers.TryGetValue(sound, out GameObject g))
-                    {
-                        GameObject.Destroy(g);
-                        soundPointers.Remove(sound);
-                    }
-                }
-            }
+            //if ( toBeRemoved.Count > 0 )
+            //{
+            //    foreach (Sounds sound in toBeRemoved)
+            //    {
+            //        if (soundPointers.TryGetValue(sound, out GameObject g))
+            //        {
+            //            GameObject.Destroy(g);
+            //            soundPointers.Remove(sound);
+            //        }
+            //    }
+            //}
 
             if (toBeAdded.Count > 0)
             {
@@ -315,6 +315,7 @@ namespace XavierLab
                 {
                     if (soundPointers.TryGetValue(sound, out GameObject g))
                     {
+                        // TODO: remove instances added to tags?
                         GameObject.Destroy(g);
                         soundPointers.Remove(sound);
                     }
