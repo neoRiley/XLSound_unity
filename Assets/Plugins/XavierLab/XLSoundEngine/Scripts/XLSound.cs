@@ -371,5 +371,33 @@ namespace XavierLab
 
             return source;
         }
+
+
+        public static T GetEnumForString<T>(string value) where T : struct
+        {
+            if ((typeof(T).IsEnum))
+            {
+                foreach (T eValue in Enum.GetValues(typeof(T)))
+                {
+                    if (eValue.ToString().Equals(value)) return eValue;
+                }
+            }
+
+            return default;
+        }
+
+
+        public static T GetEnumForInt<T>(int value) where T : struct
+        {
+            if ((typeof(T).IsEnum))
+            {
+                foreach (T eValue in Enum.GetValues(typeof(T)))
+                {
+                    if (eValue.GetHashCode().Equals(value)) return eValue;
+                }
+            }
+
+            return default;
+        }
     }
 }

@@ -172,19 +172,5 @@ public class ConversionUtils
 
         return q;
     }
-
-
-    public static T GetEnumForString<T>(string value) where T : struct
-    {
-        if ((typeof(T).IsEnum))
-        {
-            foreach (T eValue in Enum.GetValues(typeof(T)))
-            {
-                if (eValue.ToString().Equals(value)) return eValue;
-            }
-        }
-
-        return default;
-    }
 }
 

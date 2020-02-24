@@ -110,7 +110,7 @@ namespace XavierLab
             get
             {
                 L.Log(LogEventType.STRING, $"Sound: {SoundName}");
-                return ConversionUtils.GetEnumForString<Sounds>(SoundName);
+                return XLSound.GetEnumForString<Sounds>(SoundName);
             }
         }
 
@@ -195,7 +195,7 @@ namespace XavierLab
             bool changed = DrawDefaultInspector();
 
             GUILayout.Space(10f);
-            var clipType = GetEnumForInt<SoundClipTypes>(soundTypeObj.intValue);
+            var clipType = XLSound.GetEnumForInt<SoundClipTypes>(soundTypeObj.intValue);
             soundTypeObj.intValue = EditorGUILayout.EnumPopup("Sound Type: ", clipType).GetHashCode();
 
             //==================== [TAGS] ===================
@@ -347,20 +347,6 @@ namespace XavierLab
             var name = $"{audioClipName}";
             name = name.Replace(" ", "_");
             return name;
-        }
-
-
-        public static T GetEnumForInt<T>(int value) where T : struct
-        {
-            if ((typeof(T).IsEnum))
-            {
-                foreach (T eValue in Enum.GetValues(typeof(T)))
-                {
-                    if (eValue.GetHashCode().Equals(value)) return eValue;
-                }
-            }
-
-            return default;
         }
 
 
