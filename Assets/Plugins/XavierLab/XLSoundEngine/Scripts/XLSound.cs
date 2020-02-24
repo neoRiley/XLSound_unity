@@ -80,12 +80,12 @@ namespace XavierLab
         public static void PlaySound(Sounds sound, float duration = 2.0f)
         {
             SoundClip soundClip = GetSoundClipForSound(sound);
-            if (soundClip.snapshot != null)
+            if (soundClip != null && soundClip.snapshot != null)
             {
                 soundClip.snapshot.TransitionTo(duration);
                 PlaySound(sound);
             }
-            else L.Log(LogEventType.ERROR, $"Transition not found for {sound} is null");
+            else L.Log(LogEventType.ERROR, $"Transition not found for {sound}. SoundClip is null and likely needs to be added to a SoundLoader's list of audio clips", true);
         }
 
 
@@ -213,10 +213,6 @@ namespace XavierLab
             {
                 // remove items in currentSounds from list
                 toBeAdded = list.Except(currentSounds).ToList();
-                //if(mode.Equals(LoadSceneMode.Single)) toBeRemoved = currentSounds.Except(list).ToList();
-
-                //L.Log(LogEventType.NORMAL, $"toBeAdded: {String.Join(", ", toBeAdded)}");
-                //L.Log(LogEventType.NORMAL, $"toBeRemoved: {String.Join(", ", toBeRemoved)}");
             }
             else
             {
@@ -226,18 +222,6 @@ namespace XavierLab
 
             L.Log(LogEventType.STRING, $"toBeAdded: {String.Join(", ", toBeAdded)}", true);
             L.Log(LogEventType.STRING, $"currentSounds: {String.Join(", ", currentSounds)}", true);
-
-            //if ( toBeRemoved.Count > 0 )
-            //{
-            //    foreach (Sounds sound in toBeRemoved)
-            //    {
-            //        if (soundPointers.TryGetValue(sound, out GameObject g))
-            //        {
-            //            GameObject.Destroy(g);
-            //            soundPointers.Remove(sound);
-            //        }
-            //    }
-            //}
 
             if (toBeAdded.Count > 0)
             {

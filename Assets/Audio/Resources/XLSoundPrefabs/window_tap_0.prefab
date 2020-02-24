@@ -54,8 +54,8 @@ MonoBehaviour:
   autoPlay: 0
   loop: 0
   snapshot: {fileID: 24500006, guid: c953920567215534d8f9954c08708b68, type: 2}
-  tags: 2048
-  tagsList: Window
+  tags: 0
+  tagsList: 
   prefabPath: 
 --- !u!82 &-2964342593020432289
 AudioSource:

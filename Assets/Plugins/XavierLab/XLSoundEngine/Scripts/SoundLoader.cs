@@ -15,6 +15,11 @@ namespace XavierLab
             if(isActiveAndEnabled && soundList.Count > 0) XLSound.LoadSoundsForScene(soundList);
         }
 
+        private void Start()
+        {
+            
+        }
+
         public void OnDestroy()
         {
             if (removeOnUnload && soundList.Count > 0) XLSound.RemoveSoundsForScene(soundList);

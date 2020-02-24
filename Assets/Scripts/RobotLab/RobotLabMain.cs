@@ -33,7 +33,8 @@ public class RobotLabMain : MonoBehaviour
         {
             g.AddComponent<BoxCollider>();
             var handler = g.AddComponent<WallLightClickHandler>();
-            handler.OnTap += (GameObject obj) => {
+            handler.OnTap += (GameObject obj) => 
+            {
                 XLSound.PlaySound(obj);
             };
         }
@@ -47,8 +48,10 @@ public class RobotLabMain : MonoBehaviour
         {
             g.AddComponent<BoxCollider>();
             var handler = g.AddComponent<WindowClickHandler>();
-            handler.OnTap += (GameObject obj) => {
-                XLSound.PlaySound(Sounds.window_tap_0, obj.transform.position);
+            handler.OnTap += (GameObject obj) => 
+            {
+                var box = obj.GetComponent<BoxCollider>();
+                XLSound.PlaySound(Sounds.window_tap_0, box.center);
             };
         }
     }
@@ -59,7 +62,8 @@ public class RobotLabMain : MonoBehaviour
         var collider = t.AddComponent<SphereCollider>();
         collider.center = Vector3.zero;
         var lHandler = t.AddComponent<TurbineClickHandler>();
-        lHandler.OnTap += (GameObject obj) => {
+        lHandler.OnTap += (GameObject obj) => 
+        {
             XLSound.PlaySound(Sounds.metal_bang_3, obj.transform.position);
         };
 
@@ -67,7 +71,8 @@ public class RobotLabMain : MonoBehaviour
         collider = t.AddComponent<SphereCollider>();
         collider.center = Vector3.zero;
         var rHandler = t.AddComponent<TurbineClickHandler>();
-        rHandler.OnTap += (GameObject obj) => {
+        rHandler.OnTap += (GameObject obj) => 
+        {
             XLSound.PlaySound(Sounds.metal_bang_3, obj.transform.position);
         };
     }
@@ -101,7 +106,7 @@ public class RobotLabMain : MonoBehaviour
         
         XLSound.PlaySound(Sounds.My_Song_6, 5.0f);
 
-        Timers.AsyncSetTimeout(30.0f, (Action<BaseTimer>)((x) =>
+        Timers.AsyncSetTimeout(40.0f, (Action<BaseTimer>)((x) =>
         {
             L.Log(LogEventType.EVENT, $"Should switch Music: {musicIndex}");
             if( musicIndex.Equals(0))
