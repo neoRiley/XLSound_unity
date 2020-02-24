@@ -31255,11 +31255,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2128969787}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4548c5658c963274d93111f01082efe6, type: 3}
+  m_Script: {fileID: 11500000, guid: 923dc08ba0b9692438d2a87df86d5fde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundList: 110000000d00000012000000100000000e000000170000001800000019000000
-  mode: 1
+  removeOnUnload: 1
+  soundList: 1d0000001e0000001f0000002000000023000000210000002200000024000000
 --- !u!4 &2128969789
 Transform:
   m_ObjectHideFlags: 0
@@ -31283,11 +31283,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2128969787}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4548c5658c963274d93111f01082efe6, type: 3}
+  m_Script: {fileID: 11500000, guid: 923dc08ba0b9692438d2a87df86d5fde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundList: 0c0000000f00000016000000
-  mode: 1
+  removeOnUnload: 1
+  soundList: 1a0000001b0000001c000000
 --- !u!1001 &2136603079
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System;
 using System.Linq;
+using UnityEngine.Audio;
 
 namespace XavierLab
 {
@@ -16,6 +17,29 @@ namespace XavierLab
         {
             // should run when editor starts up or change is made to class
             L.Log(LogEventType.BOOL, $"{L.Style("XL", LogEventType.ERROR)} SoundEditor Loaded");
+
+            Task.Run(async () => { 
+                await CheckFolderPaths();
+
+                var mainMixer = Resources.Load<AudioMixer>("Mixers/Master") as AudioMixer;
+
+                if( mainMixer == null )
+                {
+                    L.Log(LogEventType.ERROR, $"A 'Master.mixer' does not exist in Audio/Resources/Mixers'.  You will not be able to Mute/Unmute globally without creating one and assigning all sub mixers to it.");
+                }
+            });
+        }
+
+        static async Task CheckFolderPaths()
+        {
+            var path = Path.Combine(Application.dataPath, "Audio", "Resources", "XLSoundPrefabs");
+            await CheckAndCreateDirectory(path);
+
+            path = Path.Combine(Application.dataPath, "Audio", "Resources", "Mixers");
+            await CheckAndCreateDirectory(path);
+
+            path = Path.Combine(Application.dataPath, "Plugins", "XavierLab", "XLSoundEngine", "Scripts", "enums");
+            await CheckAndCreateDirectory(path);
         }
 
         [MenuItem("XL Sound Engine/Create Sound Clip")]
