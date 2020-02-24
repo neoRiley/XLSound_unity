@@ -27,7 +27,7 @@ namespace XavierLab
         [RuntimeInitializeOnLoadMethod]
         public static async Task Initialize()
         {
-            L.Log(LogEventType.BOOL, $"{L.Style("XL", LogEventType.ERROR)} Sound Engine");
+            L.Log(LogEventType.BOOL, $"{L.Style("XL", LogEventType.ERROR, true)} Sound Engine");
 
             mainMixer = Resources.Load<AudioMixer>("Mixers/Master") as AudioMixer;
 

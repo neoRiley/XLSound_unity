@@ -16,18 +16,23 @@ namespace XavierLab
         static XLSoundEditor()
         {
             // should run when editor starts up or change is made to class
-            L.Log(LogEventType.BOOL, $"{L.Style("XL", LogEventType.ERROR)} SoundEditor Loaded");
+            L.Log(LogEventType.BOOL, $"{L.Style("XL", LogEventType.ERROR, true)} SoundEditor Loaded");
 
-            Task.Run(async () => { 
-                await CheckFolderPaths();
+            try
+            {
+                CheckFolderPaths();
 
                 var mainMixer = Resources.Load<AudioMixer>("Mixers/Master") as AudioMixer;
 
-                if( mainMixer == null )
+                if (mainMixer == null)
                 {
                     L.Log(LogEventType.ERROR, $"A 'Master.mixer' does not exist in Audio/Resources/Mixers'.  You will not be able to Mute/Unmute globally without creating one and assigning all sub mixers to it.");
                 }
-            });
+            }
+            catch (Exception err)
+            {
+                L.Log(LogEventType.ERROR, $"{err.Message}, {err.StackTrace}");
+            }
         }
 
         static async Task CheckFolderPaths()
