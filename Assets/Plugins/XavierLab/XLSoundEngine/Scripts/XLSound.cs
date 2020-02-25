@@ -237,11 +237,18 @@ namespace XavierLab
                     {
                         g.transform.SetParent(soundsContainer.transform);
                         var soundClip = g.GetComponent<SoundClip>();
+                        bool shouldRemoveOriginalInstance = false;
+
                         if( soundClip != null && soundClip.tagsList.Length > 0)
                         {
-                            CreateTagSounds(soundClip);
+                            shouldRemoveOriginalInstance = CreateTagSounds(soundClip);
+                            if (shouldRemoveOriginalInstance)
+                            {
+                                GameObject.Destroy(g);
+                            }
                         }
-                        soundPointers.Add(sound, g);
+
+                        if( !shouldRemoveOriginalInstance ) soundPointers.Add(sound, g);
                     }
                     else L.Log(LogEventType.ERROR, $"Failed to load {p}");                            
 
@@ -250,9 +257,11 @@ namespace XavierLab
         }
 
 
-        static void CreateTagSounds(SoundClip soundClip)
+        static bool CreateTagSounds(SoundClip soundClip)
         {
             L.Log(LogEventType.SERVICE_EVENT, $"Tags string {soundClip.tagsList}, {soundClip.name}");
+            bool shouldRemoveOriginalInstance = false;
+
             string[] tags = soundClip.tagsList.Split(',');
             foreach (string s in tags)
             {
@@ -263,6 +272,8 @@ namespace XavierLab
                 {
                     soundClip.transform.SetParent(gos[0].transform);
                     soundClip.transform.localPosition = Vector3.zero;
+
+                    shouldRemoveOriginalInstance = false;
                 }
                 else if (gos.Length > 0)
                 {
@@ -270,15 +281,19 @@ namespace XavierLab
                     {
                         var p = Path.Combine(prefabsPath, soundClip.name).Replace(@"\", "/");
 #if !UNITY_EDITOR
-				    GameObject prefab = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>(p));
+				        GameObject prefab = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>(p));
 #else
                         GameObject prefab = PrefabUtility.InstantiatePrefab(Resources.Load<GameObject>(p)) as GameObject;
 #endif
                         prefab.transform.parent = g.transform;
                         prefab.transform.localPosition = Vector3.zero;
                     }
+
+                    shouldRemoveOriginalInstance = true;
                 }
             }
+
+            return shouldRemoveOriginalInstance;
         }
 
 

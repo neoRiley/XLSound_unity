@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4013640731784271933}
   - component: {fileID: 1959428472504251320}
-  - component: {fileID: 6917328428905277948}
+  - component: {fileID: -851826052622799470}
   m_Layer: 0
   m_Name: XWingsAttack_complete_master
   m_TagString: Untagged
@@ -58,7 +58,7 @@ MonoBehaviour:
   tags: 16384
   tagsList: MusicPlayer
   prefabPath: 
---- !u!82 &6917328428905277948
+--- !u!82 &-851826052622799470
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -80,7 +80,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 0.25
   MinDistance: 1
-  MaxDistance: 20
+  MaxDistance: 40
   Pan2D: 0
   rolloffMode: 2
   BypassEffects: 0
@@ -99,22 +99,22 @@ AudioSource:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.33806598
-      value: 0.32886553
-      inSlope: -0.5362912
-      outSlope: -0.5362912
+      time: 0.2748742
+      value: 0.31759602
+      inSlope: -1.544222
+      outSlope: -1.544222
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.2506326
+      outWeight: 0.2075167
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -1.3270204
-      outSlope: -1.3270204
+      inSlope: -0.65531904
+      outSlope: -0.65531904
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.17984828
+      inWeight: 0.28529403
       outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -139,7 +139,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.75
+      value: 0.16666667
       inSlope: 0
       outSlope: 0
       tangentMode: 0

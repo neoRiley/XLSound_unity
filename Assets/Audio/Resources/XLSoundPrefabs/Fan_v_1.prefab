@@ -77,7 +77,7 @@ AudioSource:
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 2.86
+  DopplerLevel: 0.25
   MinDistance: 2.86
   MaxDistance: 28.11
   Pan2D: 0
@@ -138,7 +138,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.75
+      value: 0.16666667
       inSlope: 0
       outSlope: 0
       tangentMode: 0
