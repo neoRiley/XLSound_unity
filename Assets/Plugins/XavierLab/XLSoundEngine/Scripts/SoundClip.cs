@@ -36,7 +36,7 @@ namespace XavierLab
         {
             get
             {
-                if(String.IsNullOrEmpty(soundName)) soundName = gameObject.name;
+                if (String.IsNullOrEmpty(soundName)) soundName = gameObject.name;
                 return soundName;
             }
             set
@@ -45,7 +45,7 @@ namespace XavierLab
                 L.Log(LogEventType.BOOL, $"soundname changed: {nameChanged}, value: {value}");
                 soundName = value;
 #if UNITY_EDITOR
-                MainEditorDispatcher.Invoke(() => 
+                MainEditorDispatcher.Invoke(() =>
                 {
                     if (nameChanged)
                     {
@@ -121,6 +121,7 @@ namespace XavierLab
 
     }
 
+#if UNITY_EDITOR
     [CustomEditor(typeof(SoundClip))]
     [CanEditMultipleObjects]
     public class CustomInspector : Editor
@@ -146,7 +147,7 @@ namespace XavierLab
         }
 
         void RefreshProperties()
-        {            
+        {
             soundClip = (SoundClip)target;
             soundNameObj = serializedObject.FindProperty("soundName");
             audioClipObj = serializedObject.FindProperty("audioClip");
@@ -172,7 +173,7 @@ namespace XavierLab
             var soundName = soundClip.name;
 
             var isPrefab = CheckIsPrefab(soundClip.gameObject);
-            
+
             GUILayout.Label("Sound Clip Editor", EditorStyles.boldLabel);
             GUILayout.Space(10f);
 
@@ -182,7 +183,7 @@ namespace XavierLab
                 var s = GetSafeSoundName();
                 EditorGUILayout.LabelField("SoundName: ", s);
                 soundNameObj.stringValue = s;
-                if(!isPrefab) soundClip.name = s; // only update if not a prefab
+                if (!isPrefab) soundClip.name = s; // only update if not a prefab
             }
             else
             {
@@ -191,7 +192,7 @@ namespace XavierLab
                 EditorGUILayout.LabelField("SoundName: ", "[Set AudioClip to edit]", s);
             }
 
-            bool createOrUpdatePrefab = false;    
+            bool createOrUpdatePrefab = false;
             bool changed = DrawDefaultInspector();
 
             GUILayout.Space(10f);
@@ -235,17 +236,17 @@ namespace XavierLab
             {
                 GUILayout.Space(10f);
                 createOrUpdatePrefab = GUILayout.Button("Create or update prefab");
-            }           
+            }
 
             if (changed || GUI.changed)
             {
                 L.Log(LogEventType.STRING, $"TagsList: {serializedObject.FindProperty("tagsList").stringValue}");
                 var audioSource = soundClip.gameObject.GetComponent<AudioSource>();
-                
+
                 if (mixerGroupObj.objectReferenceValue != null)
                 {
                     var mixerGroup = mixerGroupObj.objectReferenceValue as AudioMixerGroup;
-                    
+
                     if (!mixerGroupName.Equals(mixerGroup.name))
                     {
                         mixerObj.objectReferenceValue = mixerGroup.audioMixer;
@@ -253,17 +254,17 @@ namespace XavierLab
                     }
                 }
 
-                if (audioClipObj.objectReferenceValue != null )
+                if (audioClipObj.objectReferenceValue != null)
                 {
                     AudioClip clip = audioClipObj.objectReferenceValue as AudioClip;
                     if (!audioClipName.Equals(clip.name))
-                    {                        
+                    {
                         audioSource.clip = clip;
                         L.Log(LogEventType.BOOL, $"AudioClip changed: {clip.name}, old clip: {audioClipName}, has component: {soundClip.gameObject.GetComponent<AudioSource>() != null}");
                     }
                 }
 
-                audioSource.spatialBlend = soundTypeObj.intValue == 1 ? 1.0f : 0.0f ;
+                audioSource.spatialBlend = soundTypeObj.intValue == 1 ? 1.0f : 0.0f;
                 audioSource.playOnAwake = autoPlayObj.boolValue;
                 audioSource.loop = loopObj.boolValue;
 
@@ -317,7 +318,7 @@ namespace XavierLab
                 }
             }
 
-            if (createOrUpdatePrefab )
+            if (createOrUpdatePrefab)
             {
                 L.Log(LogEventType.BOOL, $"Create or update prefab");
                 CreatePrefab(soundClip.gameObject);
@@ -359,7 +360,7 @@ namespace XavierLab
                 bool created = false;
                 GameObject prefab = PrefabUtility.SaveAsPrefabAsset(source, Path.Combine(path, source.name + ".prefab").Replace(@"\", "/"), out created);
                 L.Log(LogEventType.BOOL, $"prefab '{source.name}' created: {created}");
-                if(!Application.isPlaying) GameObject.DestroyImmediate(source);
+                if (!Application.isPlaying) GameObject.DestroyImmediate(source);
             }
             catch (Exception err)
             {
@@ -367,4 +368,5 @@ namespace XavierLab
             }
         }
     }
+#endif
 }

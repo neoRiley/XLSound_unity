@@ -35,7 +35,7 @@ namespace XavierLab
         }
 
 
-        public static void Mute(bool immediately=false)
+        public static void Mute(bool immediately = false)
         {
             if (mainMixer != null)
             {
@@ -96,13 +96,13 @@ namespace XavierLab
         /// <param name="sound"></param>
         /// <param name="position"></param>
         public static void PlaySound(Sounds sound, Vector3 position)
-        {            
+        {
             SoundClip soundClip = GetSoundClipForSound(sound);
-            if(soundClip != null)
+            if (soundClip != null)
             {
                 soundClip.transform.position = position;
                 PlaySound(sound);
-            }           
+            }
             else L.Log(LogEventType.ERROR, $"Audio source for {sound} is null");
         }
 
@@ -116,8 +116,8 @@ namespace XavierLab
             var clips = GetSoundClipsForTag(tagName);
 
             if (clips.Count > 0)
-            {                
-                foreach(SoundClip clip in clips)
+            {
+                foreach (SoundClip clip in clips)
                 {
                     PlaySound(clip.Sound);
                 }
@@ -133,7 +133,7 @@ namespace XavierLab
         public static void PlaySound(GameObject obj)
         {
             AudioSource audio = obj.GetComponent<AudioSource>();
-            if(audio == null)
+            if (audio == null)
             {
                 audio = obj.GetComponentInChildren<AudioSource>();
                 if (audio != null)
@@ -200,7 +200,7 @@ namespace XavierLab
         /// <param name="mode"></param>
         public static void LoadSoundsForScene(List<Sounds> list)
         {
-            if(soundsContainer == null)
+            if (soundsContainer == null)
             {
                 soundsContainer = new GameObject("_XLSoundManager");
                 GameObject.DontDestroyOnLoad(soundsContainer);
@@ -231,37 +231,28 @@ namespace XavierLab
 #if UNITY_EDITOR
                     var g = (GameObject)PrefabUtility.InstantiatePrefab(Resources.Load<GameObject>(p));
 #else
-                    var g = GameObject.Instantiate<GameObject>(p);
+                    var g = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>(p));
 #endif
                     if (g != null)
                     {
                         g.transform.SetParent(soundsContainer.transform);
                         var soundClip = g.GetComponent<SoundClip>();
-                        bool shouldRemoveOriginalInstance = false;
-
-                        if( soundClip != null && soundClip.tagsList.Length > 0)
+                        if (soundClip != null && soundClip.tagsList.Length > 0)
                         {
-                            shouldRemoveOriginalInstance = CreateTagSounds(soundClip);
-                            if (shouldRemoveOriginalInstance)
-                            {
-                                GameObject.Destroy(g);
-                            }
+                            CreateTagSounds(soundClip);
                         }
-
-                        if( !shouldRemoveOriginalInstance ) soundPointers.Add(sound, g);
+                        soundPointers.Add(sound, g);
                     }
-                    else L.Log(LogEventType.ERROR, $"Failed to load {p}");                            
+                    else L.Log(LogEventType.ERROR, $"Failed to load {p}");
 
                 }
-            }            
+            }
         }
 
 
-        static bool CreateTagSounds(SoundClip soundClip)
+        static void CreateTagSounds(SoundClip soundClip)
         {
             L.Log(LogEventType.SERVICE_EVENT, $"Tags string {soundClip.tagsList}, {soundClip.name}");
-            bool shouldRemoveOriginalInstance = false;
-
             string[] tags = soundClip.tagsList.Split(',');
             foreach (string s in tags)
             {
@@ -272,8 +263,6 @@ namespace XavierLab
                 {
                     soundClip.transform.SetParent(gos[0].transform);
                     soundClip.transform.localPosition = Vector3.zero;
-
-                    shouldRemoveOriginalInstance = false;
                 }
                 else if (gos.Length > 0)
                 {
@@ -281,19 +270,15 @@ namespace XavierLab
                     {
                         var p = Path.Combine(prefabsPath, soundClip.name).Replace(@"\", "/");
 #if !UNITY_EDITOR
-				        GameObject prefab = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>(p));
+				    GameObject prefab = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>(p));
 #else
                         GameObject prefab = PrefabUtility.InstantiatePrefab(Resources.Load<GameObject>(p)) as GameObject;
 #endif
                         prefab.transform.parent = g.transform;
                         prefab.transform.localPosition = Vector3.zero;
                     }
-
-                    shouldRemoveOriginalInstance = true;
                 }
             }
-
-            return shouldRemoveOriginalInstance;
         }
 
 
@@ -303,11 +288,11 @@ namespace XavierLab
 
             if (currentSounds.Count > 0)
             {
-                toBeRemoved = list.Except(currentSounds).ToList();                
+                toBeRemoved = list.Except(currentSounds).ToList();
                 L.Log(LogEventType.STRING, $"toBeRemoved: {String.Join(", ", toBeRemoved)}");
             }
             else return; // nothing to remove
-            
+
             if (toBeRemoved.Count > 0)
             {
                 foreach (Sounds sound in toBeRemoved)
@@ -351,7 +336,7 @@ namespace XavierLab
         static AudioSource GetAudioSourceForSound(Sounds sound)
         {
             AudioSource source = null;
-            if(soundPointers.TryGetValue(sound, out GameObject g))
+            if (soundPointers.TryGetValue(sound, out GameObject g))
             {
                 source = g.GetComponent<AudioSource>();
             }
