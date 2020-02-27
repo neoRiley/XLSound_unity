@@ -57,6 +57,7 @@ MonoBehaviour:
   tags: 16384
   tagsList: MusicPlayer
   prefabPath: Assets/Audio/Resources/XLSoundPrefabs/My_Song_6_26.prefab
+  pitchRange: 0
 --- !u!82 &4420770832736329827
 AudioSource:
   m_ObjectHideFlags: 0
@@ -79,7 +80,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 0.25
   MinDistance: 1
-  MaxDistance: 40
+  MaxDistance: 35
   Pan2D: 0
   rolloffMode: 2
   BypassEffects: 0

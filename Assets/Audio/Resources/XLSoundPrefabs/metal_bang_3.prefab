@@ -57,6 +57,7 @@ MonoBehaviour:
   tags: 0
   tagsList: 
   prefabPath: 
+  pitchRange: 0.06
 --- !u!82 &8076587258096980702
 AudioSource:
   m_ObjectHideFlags: 0

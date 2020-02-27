@@ -105,18 +105,37 @@ namespace XavierLab
         [HideInInspector]
         public string prefabPath;
 
+        [SerializeField]
+        [HideInInspector]
+        public float pitchRange = 0;
+
         public Sounds Sound
         {
             get
             {
-                L.Log(LogEventType.STRING, $"Sound: {SoundName}");
                 return XLSound.GetEnumForString<Sounds>(SoundName);
             }
         }
 
+        [HideInInspector]
+        protected AudioSource audioSource;
+
         void Awake()
         {
+            audioSource = GetComponent<AudioSource>();
+        }
 
+
+        public void PlaySound()
+        {
+            if (!pitchRange.Equals(0))
+            {
+                float r = UnityEngine.Random.Range(-pitchRange, pitchRange);
+                audioSource.pitch = 1 + r;
+            }
+            else audioSource.pitch = 1;
+
+            audioSource.Play();
         }
 
     }
@@ -135,6 +154,7 @@ namespace XavierLab
         SerializedProperty snapshotObj;
         SerializedProperty autoPlayObj;
         SerializedProperty loopObj;
+        SerializedProperty pitchRangeObj;
         List<AudioMixerSnapshot> snapshots;
 
         string[] tagStr;
@@ -157,6 +177,7 @@ namespace XavierLab
             autoPlayObj = serializedObject.FindProperty("autoPlay");
             loopObj = serializedObject.FindProperty("loop");
             snapshotObj = serializedObject.FindProperty("snapshot");
+            pitchRangeObj = serializedObject.FindProperty("pitchRange");
         }
 
         public override void OnInspectorGUI()
@@ -194,6 +215,10 @@ namespace XavierLab
 
             bool createOrUpdatePrefab = false;
             bool changed = DrawDefaultInspector();
+
+            GUILayout.Space(10f);
+
+            pitchRangeObj.floatValue = EditorGUILayout.Slider(new GUIContent("Pitch Range:", "Sound clip's pitch will randomly range from 1 (normal) to this negative and positive range. 0 will always play at normal pitch."), pitchRangeObj.floatValue, 0.0f, 3.0f);
 
             GUILayout.Space(10f);
             var clipType = XLSound.GetEnumForInt<SoundClipTypes>(soundTypeObj.intValue);

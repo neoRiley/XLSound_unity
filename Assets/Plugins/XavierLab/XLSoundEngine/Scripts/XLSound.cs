@@ -63,12 +63,12 @@ namespace XavierLab
         /// <param name="sound"></param>
         public static void PlaySound(Sounds sound)
         {
-            AudioSource audio = GetAudioSourceForSound(sound);
-            if (audio != null)
+            SoundClip soundClip = GetSoundClipForSound(sound);
+            if (soundClip != null)
             {
-                audio.Play();
+                soundClip.PlaySound();
             }
-            else L.Log(LogEventType.ERROR, $"Audio source for {sound} is null");
+            else L.Log(LogEventType.ERROR, $"SoundClip for {sound} is null");
         }
 
 
@@ -132,13 +132,13 @@ namespace XavierLab
         /// <param name="obj"></param>
         public static void PlaySound(GameObject obj)
         {
-            AudioSource audio = obj.GetComponent<AudioSource>();
-            if (audio == null)
+            SoundClip clip = obj.GetComponent<SoundClip>();
+            if (clip == null)
             {
-                audio = obj.GetComponentInChildren<AudioSource>();
-                if (audio != null)
+                clip = obj.GetComponentInChildren<SoundClip>();
+                if (clip != null)
                 {
-                    audio.Play();
+                    PlaySound(clip.Sound);
                 }
                 else L.Log(LogEventType.ERROR, $"No audioSource component found on {obj.name}");
             }

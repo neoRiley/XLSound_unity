@@ -56,7 +56,8 @@ MonoBehaviour:
   snapshot: {fileID: 24500006, guid: c953920567215534d8f9954c08708b68, type: 2}
   tags: 4096
   tagsList: WallLight
-  prefabPath: 
+  prefabPath: Assets/Audio/Resources/XLSoundPrefabs/plastic_tap_0.prefab
+  pitchRange: 0.08
 --- !u!82 &3640452341042198060
 AudioSource:
   m_ObjectHideFlags: 0
