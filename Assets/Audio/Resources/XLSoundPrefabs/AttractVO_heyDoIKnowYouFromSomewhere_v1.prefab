@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5663549602436696621
+--- !u!1 &3577415493360998256
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,23 +8,24 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7801236960121142512}
-  - component: {fileID: 3564688844751450046}
-  - component: {fileID: -2964342593020432289}
+  - component: {fileID: 5759836586246398255}
+  - component: {fileID: 3060443613201226280}
+  - component: {fileID: 9061740095984618691}
+  - component: {fileID: 7225618064688321126}
   m_Layer: 0
-  m_Name: window_tap_0
+  m_Name: AttractVO_heyDoIKnowYouFromSomewhere_v1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7801236960121142512
+--- !u!4 &5759836586246398255
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5663549602436696621}
+  m_GameObject: {fileID: 3577415493360998256}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -32,44 +33,93 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3564688844751450046
+--- !u!114 &3060443613201226280
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5663549602436696621}
+  m_GameObject: {fileID: 3577415493360998256}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ab635f08b3f74e449b427143e3b7cd66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 36
+  id: 38
   soundName: 
-  audioClip: {fileID: 8300000, guid: c4fc977aabbeb4da59a0b7dc77e65edd, type: 3}
-  mixer: {fileID: 24100000, guid: c953920567215534d8f9954c08708b68, type: 2}
-  mixerGroup: {fileID: 6193067133688049214, guid: c953920567215534d8f9954c08708b68,
+  audioClip: {fileID: 8300000, guid: 164a042b0c8a0b94c9af9038520ef29b, type: 3}
+  mixer: {fileID: 24100000, guid: 20e612f59a5f6ca46953aa4056925b98, type: 2}
+  mixerGroup: {fileID: -6259067021996698450, guid: 20e612f59a5f6ca46953aa4056925b98,
     type: 2}
-  soundType: 1
+  soundType: 0
   autoPlay: 0
   loop: 0
-  snapshot: {fileID: 24500006, guid: c953920567215534d8f9954c08708b68, type: 2}
+  snapshot: {fileID: 24500006, guid: 20e612f59a5f6ca46953aa4056925b98, type: 2}
   tags: 0
   tagsList: 
-  prefabPath: Assets/Audio/Resources/XLSoundPrefabs/window_tap_0.prefab
-  pitchRange: 0.06
---- !u!82 &-2964342593020432289
+  prefabPath: Assets/Audio/Resources/XLSoundPrefabs/AttractVO_heyDoIKnowYouFromSomewhere_v1.prefab
+  pitchRange: 0
+--- !u!114 &9061740095984618691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3577415493360998256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02a693372b94fc947b0b8731c46b23df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundClip: {fileID: 3060443613201226280}
+  frames:
+  - position: 3
+    frameTime: 222
+    duration: 0
+    span: 222
+    texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
+  - position: 6
+    frameTime: 400
+    duration: 0
+    span: 178
+    texture: {fileID: 2800000, guid: 532db4b81444bf146af1274336b25d7b, type: 3}
+  - position: 3
+    frameTime: 500
+    duration: 0
+    span: 100
+    texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
+  - position: 6
+    frameTime: 710.5
+    duration: 0
+    span: 210.5
+    texture: {fileID: 2800000, guid: 532db4b81444bf146af1274336b25d7b, type: 3}
+  - position: 8
+    frameTime: 915
+    duration: 0
+    span: 204.5
+    texture: {fileID: 2800000, guid: 8617502730ad9264097fe9fec9cfa9a2, type: 3}
+  - position: 2
+    frameTime: 1100
+    duration: 0
+    span: 185
+    texture: {fileID: 2800000, guid: 00c4bf2a8f9ebfe4c9f031caceddd0ff, type: 3}
+  - position: 5
+    frameTime: 1279
+    duration: 0
+    span: 164.09998
+    texture: {fileID: 2800000, guid: 4eb54f640317def49b50e2171c490010, type: 3}
+--- !u!82 &7225618064688321126
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5663549602436696621}
+  m_GameObject: {fileID: 3577415493360998256}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 6193067133688049214, guid: c953920567215534d8f9954c08708b68,
+  OutputAudioMixerGroup: {fileID: -6259067021996698450, guid: 20e612f59a5f6ca46953aa4056925b98,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: c4fc977aabbeb4da59a0b7dc77e65edd, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 164a042b0c8a0b94c9af9038520ef29b, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -80,9 +130,9 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 30
+  MaxDistance: 500
   Pan2D: 0
-  rolloffMode: 2
+  rolloffMode: 0
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -99,22 +149,13 @@ AudioSource:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.22113907
-      value: 0.51927763
-      inSlope: -1.0526224
-      outSlope: -1.0526224
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.20311676
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -0.91656107
-      outSlope: -0.91656107
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.22523741
       outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -124,7 +165,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0

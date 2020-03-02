@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -119,6 +120,7 @@ namespace XavierLab
 
         [HideInInspector]
         protected AudioSource audioSource;
+        public AudioSource AudioSource { get => audioSource; }
 
         void Awake()
         {
@@ -143,7 +145,7 @@ namespace XavierLab
 #if UNITY_EDITOR
     [CustomEditor(typeof(SoundClip))]
     [CanEditMultipleObjects]
-    public class CustomInspector : Editor
+    public class SoundClipInspector : Editor
     {
         SoundClip soundClip;
         SerializedProperty soundNameObj;
@@ -159,11 +161,29 @@ namespace XavierLab
 
         string[] tagStr;
 
-        protected float lineBuffer = 3;
+        bool IsPlayingSound
+        {
+            get
+            {
+                if (playbackToken != null) return !playbackToken.IsCancellationRequested;
+                return false;
+            }
+        }
 
-        private void OnEnable()
+        CancellationTokenSource playbackToken;
+
+        public void OnEnable()
         {
             tagStr = UnityEditorInternal.InternalEditorUtility.tags;
+        }
+
+        public void OnDisable()
+        {
+            if (IsPlayingSound)
+            {
+                XLSoundUtils.StopAllClips();
+                playbackToken.Cancel();
+            }
         }
 
         void RefreshProperties()
@@ -257,6 +277,31 @@ namespace XavierLab
             GUI.enabled = true;
             //====================
 
+            var source = soundClip.GetComponent<AudioSource>();
+            GUI.enabled = source == null ? false : true;
+            if (!IsPlayingSound)
+            {
+                if (GUILayout.Button("Play"))
+                {
+                    playbackToken = new CancellationTokenSource();
+                    XLSoundUtils.PlayClip(source.clip);
+                    L.Log(LogEventType.ERROR, $"playback started: clip length: {source.clip.length}", true);
+                    MonitorAudioClip(source.clip);
+                    return;
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Stop"))
+                {
+                    playbackToken.Cancel();
+                    XLSoundUtils.StopAllClips();
+                }
+
+                return;
+            }
+            GUI.enabled = true;
+
             if (audioClipObj.objectReferenceValue != null && !isPrefab)
             {
                 GUILayout.Space(10f);
@@ -331,6 +376,7 @@ namespace XavierLab
 
             serializedObject.ApplyModifiedProperties();
 
+            
             // update prefab AFTER the changed values are applied to the SoundClip object
             if (changed || GUI.changed)
             {
@@ -348,6 +394,36 @@ namespace XavierLab
                 L.Log(LogEventType.BOOL, $"Create or update prefab");
                 CreatePrefab(soundClip.gameObject);
             }
+        }
+
+
+        async void MonitorAudioClip(AudioClip clip)
+        {
+            CancellationTokenSource token = new CancellationTokenSource();
+            var value = 0;
+            MainEditorDispatcher.Invoke(() =>
+            {
+                value = Mathf.FloorToInt(clip.length * 1000);
+                L.Log(LogEventType.BOOL, $"value: {value}");
+                token.Cancel();
+            });
+
+            while (!token.IsCancellationRequested) await Task.Delay(5);
+
+            await Task.Run(async () =>
+            {
+                L.Log(LogEventType.ERROR, $"Recording should last: {value}", true);
+                await Task.Delay(value);
+            });
+
+
+            MainEditorDispatcher.Invoke(() =>
+            {
+                L.Log(LogEventType.ERROR, $"Recording stopped", true);
+                playbackToken.Cancel();
+                XLSoundUtils.StopAllClips();
+                Repaint();
+            });
         }
 
 
