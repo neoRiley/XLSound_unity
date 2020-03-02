@@ -99,14 +99,19 @@ MonoBehaviour:
     span: 204.5
     texture: {fileID: 2800000, guid: 8617502730ad9264097fe9fec9cfa9a2, type: 3}
   - position: 2
-    frameTime: 1100
+    frameTime: 1062
     duration: 0
     span: 185
     texture: {fileID: 2800000, guid: 00c4bf2a8f9ebfe4c9f031caceddd0ff, type: 3}
-  - position: 5
-    frameTime: 1279
+  - position: 1
+    frameTime: 1189
     duration: 0
-    span: 164.09998
+    span: 89
+    texture: {fileID: 2800000, guid: a0d055dce23161e4bb1168aa3ce9d1c7, type: 3}
+  - position: 5
+    frameTime: 1350
+    duration: 0
+    span: 161
     texture: {fileID: 2800000, guid: 4eb54f640317def49b50e2171c490010, type: 3}
 --- !u!82 &7225618064688321126
 AudioSource:
