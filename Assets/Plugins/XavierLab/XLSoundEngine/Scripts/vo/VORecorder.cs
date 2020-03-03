@@ -13,11 +13,15 @@ namespace XavierLab
     public class VORecorder : MonoBehaviour
     {
         [SerializeField]
-        //[HideInInspector]
-        public SoundClip soundClip;
+        [HideInInspector]
+        public int clipLength = 0;
 
         [SerializeField]
         public List<VORecorderFrame> frames;
+
+        [SerializeField]
+        [HideInInspector]
+        public int finalFrameDelay = 100;
     }
 
 #if UNITY_EDITOR
@@ -35,12 +39,23 @@ namespace XavierLab
             }
         }
 
+        bool IsRecordingSentence
+        {
+            get
+            {
+                if (sentenceToken != null) return !sentenceToken.IsCancellationRequested;
+                return false;
+            }
+        }
+
         VORecorder recorder;
-        SerializedProperty soundClipObj;
-        //SerializedProperty framesObj;
+        SerializedProperty finalFrameDelayObj;
+        AudioSource source;
+        List<VORecorderFrame> frames;
 
         CancellationTokenSource recorderToken;
-
+        CancellationTokenSource sentenceToken;
+        DateTime startTime;
         Dictionary<VOPositions, Texture> voImages;
 
 
@@ -74,18 +89,12 @@ namespace XavierLab
         {
             recorder = (VORecorder)target;
 
-            soundClipObj = serializedObject.FindProperty("soundClip");
-            //framesObj = serializedObject.FindProperty("frames");
-            //mixerObj = serializedObject.FindProperty("mixer");
-            //mixerGroupObj = serializedObject.FindProperty("mixerGroup");
-            //soundTypeObj = serializedObject.FindProperty("soundType");
-            //autoPlayObj = serializedObject.FindProperty("autoPlay");
-            //loopObj = serializedObject.FindProperty("loop");
-            //snapshotObj = serializedObject.FindProperty("snapshot");
-            //pitchRangeObj = serializedObject.FindProperty("pitchRange");
+            source = recorder.GetComponent<AudioSource>();
+            recorder.clipLength = Mathf.FloorToInt(source.clip.length * 1000);
+            finalFrameDelayObj = serializedObject.FindProperty("finalFrameDelay");
         }
 
-        DateTime startTime;
+        
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -94,66 +103,25 @@ namespace XavierLab
             GUILayout.Label("VO Recorder", EditorStyles.boldLabel);
             GUILayout.Space(10f);
 
-            bool changed = DrawDefaultInspector();
+            GUIStyle lenStyle = new GUIStyle(EditorStyles.label);
+            lenStyle.normal.textColor = Color.yellow;
+            EditorGUILayout.LabelField("Clip Length",$"{recorder.clipLength}", lenStyle);
+            GUILayout.Space(10f);            
 
-            if (soundClipObj.objectReferenceValue == null)
+            if(IsRecordingSentence)
             {
-                soundClipObj.objectReferenceValue = recorder.GetComponent<SoundClip>();
-            }
-
-            var frames = new List<VORecorderFrame>();
-            if (recorder.frames != null) frames.AddRange(recorder.frames);
-
-            if (!IsRecording)
-            {
-                if (GUILayout.Button("Record"))
-                {
-                    bool confirm = EditorUtility.DisplayDialog(
-                        "Replace current recording?",
-                        "A recording already exists - do you want to replace it with a new recording?",
-                        "Yes", "No");
-
-                    if (confirm)
-                    {
-                        frames = new List<VORecorderFrame>(); // clear incase old exists
-                        recorderToken = new CancellationTokenSource();
-                        var source = recorder.GetComponent<AudioSource>();
-                        L.Log(LogEventType.ERROR, $"Recording started: clip length: {source.clip.length}", true);
-                        XLSoundUtils.PlayClip(source.clip);
-                        startTime = DateTime.Now;
-                        MonitorAudioClip(source.clip);
-                    }
-                }
+                DrawSentenceRecorder();
             }
             else
             {
-                GUIStyle s = new GUIStyle(EditorStyles.miniButton);
-                s.normal.textColor = Color.red;
-                s.onHover.textColor = Color.red;
-                if (GUILayout.Button("Stop Recording",s))
-                {
-                    L.Log(LogEventType.ERROR, $"Recording stopped", true);
-                    XLSoundUtils.StopAllClips();
-                    recorderToken.Cancel();
-                }
-                else
-                {
-                    Event e = Event.current;
-                    if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Space)
-                    {
-                        var frame = RecordFrame();
-                        frames.Add(frame);
-                    }
-                }
-
+                DrawNormalEditor();
+                frames = new List<VORecorderFrame>();
+                if (recorder.frames != null) frames.AddRange(recorder.frames);
             }
 
-            if (frames != null && frames.Count > 0)
-            {
-                Preview(frames);
-            }
 
-            recorder.frames = frames;
+
+            ValidateAndSaveFrames();
 
             serializedObject.ApplyModifiedProperties();
 
@@ -170,6 +138,144 @@ namespace XavierLab
             }
         }
 
+
+        void ValidateAndSaveFrames()
+        {
+            //for(int i=0; i < frames.Count; i++)
+            //{
+            //    var prev = i > 0 ? frames[i - 1] : null;                 //i=0? null, i=1? 0
+            //    var current = frames[i];                                 //i=0? 0   , i=1? 1
+            //    var next = i <= frames.Count - 2 ? frames[i + 1] : null; //i=0? 1   , i=1? 2
+
+            //    if (prev == null) current.frameTime = Mathf.Max(0, current.frameTime);
+            //    else if (prev != null && next != null) current.frameTime = Mathf.Clamp(current.frameTime, prev.frameTime, next.frameTime);
+            //    if (next == null) current.frameTime = Mathf.Min(recorder.clipLength, current.frameTime);
+            //}
+
+            recorder.frames = frames;
+        }
+
+        
+        string sentence;
+        void DrawSentenceRecorder()
+        {
+            sentence = EditorGUILayout.TextField("Sentence to parse", sentence);
+            if (GUILayout.Button("Enter"))
+            {
+                frames = new List<VORecorderFrame>();
+                string[] ary = sentence.Split(' ');
+                int count = ary.Length;
+                L.Log(LogEventType.INT, $"sentence has {ary.Length} spaces");
+
+                // ie: E Ooh E Ooh UR FV SilentMB STCh SilentMB UR
+                int delay = Mathf.FloorToInt(recorder.clipLength / count);
+                for(int i = 0; i < count; i++)
+                {
+                    frames.Add(new VORecorderFrame
+                    {
+                        position = XLSound.GetEnumForString<VOPositions>(ary[i]),
+                        frameTime = Mathf.Max(1,i) * delay
+                    });
+                }
+
+                L.Log(LogEventType.INT, $"final count: {count}, delay: {delay}");
+                
+                sentenceToken.Cancel();
+            }
+        }
+
+        bool isConfirmingRecording = false;
+        void DrawNormalEditor()
+        {
+            bool changed = DrawDefaultInspector();
+
+            GUILayout.Space(10f);
+            finalFrameDelayObj.intValue = EditorGUILayout.IntField("Final Frame Duration:", finalFrameDelayObj.intValue);
+            GUILayout.Space(10f);
+
+            
+
+            if (!IsRecording)
+            {
+                if (!isConfirmingRecording)
+                {
+                    if (GUILayout.Button("Record"))
+                    {
+                        isConfirmingRecording = true;
+                    }
+                }
+                else
+                {
+                    GUIStyle s = new GUIStyle(EditorStyles.miniButton);
+                    s.normal.textColor = Color.yellow;
+                    s.onHover.textColor = Color.yellow;
+                    if (GUILayout.Button("Do you want to replace current recording?",s))
+                    {
+                        //bool confirm = EditorUtility.DisplayDialog(
+                        //    "Replace current recording?",
+                        //    "A recording already exists - do you want to replace it with a new recording?",
+                        //    "Yes", "No");
+                                                
+                        frames = new List<VORecorderFrame>(); // clear incase old exists
+                        recorderToken = new CancellationTokenSource();
+                        L.Log(LogEventType.ERROR, $"Recording started: clip length: {source.clip.length}", true);
+                        XLSoundUtils.PlayClip(source.clip);
+                        startTime = DateTime.Now;
+                        MonitorAudioClip(source.clip);
+                        isConfirmingRecording = false;
+                    }
+                    if (GUILayout.Button("Cancel"))
+                    {
+                        isConfirmingRecording = false;
+                    }
+                }
+
+                if (GUILayout.Button("Enter Sentence"))
+                {
+                    bool confirm = EditorUtility.DisplayDialog(
+                        "Replace current recording?",
+                        "A recording already exists - do you want to replace it with a new recording?",
+                        "Yes", "No");
+
+                    if (confirm)
+                    {
+                        frames = new List<VORecorderFrame>(); // clear incase old exists
+                        sentenceToken = new CancellationTokenSource();
+                        L.Log(LogEventType.ERROR, $"Enter sentence recording started", true);
+                    }
+                }
+
+                if (frames != null && frames.Count > 0)
+                {
+                    Preview(frames);
+                }
+            }
+            else
+            {
+                GUIStyle s = new GUIStyle(EditorStyles.miniButton);
+                s.normal.textColor = Color.red;
+                s.onHover.textColor = Color.red;
+                if (GUILayout.Button("Stop Recording", s))
+                {
+                    L.Log(LogEventType.ERROR, $"Recording stopped", true);
+                    XLSoundUtils.StopAllClips();
+                    recorderToken.Cancel();
+                }
+                else
+                {
+                    Event e = Event.current;
+                    if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Space)
+                    {
+                        var frame = RecordFrame();
+                        frames.Add(frame);
+                    }
+                }
+            }
+
+            
+        }
+
+
         bool isPreviewing = false;
         Texture nextTexture;
         void Preview(List<VORecorderFrame> list)
@@ -184,7 +290,7 @@ namespace XavierLab
                 Repaint();
             }
 
-            if( nextTexture != null )
+            if (nextTexture != null)
             {
                 var centeredStyle = GUI.skin.GetStyle("Label");
                 centeredStyle.alignment = TextAnchor.MiddleCenter;
@@ -209,22 +315,19 @@ namespace XavierLab
 
             while (frames.Count > 0)
             {
-                L.Log(LogEventType.METHOD, $"Setting texture for preview: {(DateTime.Now - playTime).TotalMilliseconds}");
                 frame = frames.Dequeue();
                 nextTexture = frame.texture;
-                if(/*(DateTime.Now - playTime).TotalMilliseconds > 21f &&*/ !didStartAudio)
+                if(!didStartAudio)
                 {
-                    var source = recorder.GetComponent<AudioSource>();
                     XLSoundUtils.PlayClip(source.clip);
                     didStartAudio = true;
                 }
 
                 Repaint();
-                await Task.Delay((int)frame.span);
-                //if (frames.Count == 0) isPreviewing = false;
+                await Task.Delay(frame.span);
             }
 
-            await Task.Delay(250);
+            await Task.Delay(recorder.finalFrameDelay);
             isPreviewing = false;
             nextTexture = voImages[VOPositions.SilentMB];
         }
@@ -234,7 +337,7 @@ namespace XavierLab
         {
             Queue<VORecorderFrame> que = new Queue<VORecorderFrame>();
 
-            float lastTime = 0;
+            int lastTime = 0;
             foreach(VORecorderFrame v in list)
             {
                 v.texture = voImages[v.position];
@@ -279,7 +382,7 @@ namespace XavierLab
 
         VORecorderFrame RecordFrame()
         {
-            float time = Mathf.Floor((float)(DateTime.Now - startTime).TotalMilliseconds);
+            int time = Mathf.FloorToInt((float)(DateTime.Now - startTime).TotalMilliseconds);
             L.Log(LogEventType.BOOL, $"CREATE VO FRAME: {time}", true);
             VORecorderFrame frame = new VORecorderFrame
             {

@@ -13,6 +13,9 @@ namespace XavierLab
 {
     public class XLSound
     {
+        public static event Action<VOPositions, Sounds> OnVOPositionChanged;
+        public static event Action<Sounds> OnVOCompleted;
+
         public static bool initialized = false;
 
         static GameObject soundsContainer;
@@ -141,6 +144,61 @@ namespace XavierLab
                     PlaySound(clip.Sound);
                 }
                 else L.Log(LogEventType.ERROR, $"No audioSource component found on {obj.name}");
+            }
+        }
+
+
+        public static async void PlayVOSound(Sounds sound, Action<VOPositions> onMouthChange = null, Action onComplete = null)
+        {
+            SoundClip soundClip = GetSoundClipForSound(sound);
+            VORecorder recorder = soundClip.GetComponent<VORecorder>();
+
+            try
+            {
+                if (recorder != null)
+                {
+                    List<VORecorderFrame> list = recorder.frames;
+                    Queue<VORecorderFrame> frames = GetVOQue(list);
+                    VORecorderFrame frame;
+                    onMouthChange?.Invoke(VOPositions.SilentMB);
+                    OnVOPositionChanged?.Invoke(VOPositions.SilentMB, sound);
+
+                    L.Log(LogEventType.INT, "2");
+                    var playTime = DateTime.Now;
+                    bool didStartAudio = false;
+
+                    while (frames.Count > 0)
+                    {
+                        frame = frames.Dequeue();
+                        onMouthChange?.Invoke(frame.position);
+                        OnVOPositionChanged?.Invoke(frame.position, sound);
+
+                        if (!didStartAudio)
+                        {
+                            PlaySound(sound);
+                            didStartAudio = true;
+                        }
+
+                        await Task.Delay(frame.span);
+                    }
+
+                    await Task.Delay(recorder.finalFrameDelay);
+                    onMouthChange?.Invoke(VOPositions.SilentMB);
+                    OnVOPositionChanged?.Invoke(VOPositions.SilentMB, sound);
+                    onComplete?.Invoke();
+                    OnVOCompleted?.Invoke(sound);
+                }
+                else
+                {
+                    L.Log(LogEventType.ERROR, $"No VORecorder component found on {soundClip.name}");
+                    PlaySound(sound);
+                    onComplete?.Invoke();
+                    OnVOCompleted?.Invoke(sound);
+                }
+            }
+            catch (Exception err)
+            {
+                L.Log(LogEventType.ERROR, $"{err.Message}, {err.StackTrace}");
             }
         }
 
@@ -354,6 +412,22 @@ namespace XavierLab
             }
 
             return source;
+        }
+
+
+        static Queue<VORecorderFrame> GetVOQue(List<VORecorderFrame> list)
+        {
+            Queue<VORecorderFrame> que = new Queue<VORecorderFrame>();
+
+            int lastTime = 0;
+            foreach (VORecorderFrame v in list)
+            {
+                v.span = v.frameTime - lastTime;
+                lastTime = v.frameTime;
+                que.Enqueue(v);
+            }
+
+            return que;
         }
 
 

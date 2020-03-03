@@ -51,12 +51,12 @@ MonoBehaviour:
   mixer: {fileID: 24100000, guid: 20e612f59a5f6ca46953aa4056925b98, type: 2}
   mixerGroup: {fileID: -6259067021996698450, guid: 20e612f59a5f6ca46953aa4056925b98,
     type: 2}
-  soundType: 0
+  soundType: 1
   autoPlay: 0
   loop: 0
   snapshot: {fileID: 24500006, guid: 20e612f59a5f6ca46953aa4056925b98, type: 2}
-  tags: 0
-  tagsList: 
+  tags: 65536
+  tagsList: BlastDoor
   prefabPath: Assets/Audio/Resources/XLSoundPrefabs/AttractVO_heyDoIKnowYouFromSomewhere_v1.prefab
   pitchRange: 0
 --- !u!114 &9061740095984618691
@@ -71,48 +71,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02a693372b94fc947b0b8731c46b23df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundClip: {fileID: 3060443613201226280}
+  clipLength: 1662
   frames:
   - position: 3
-    frameTime: 222
-    duration: 0
-    span: 222
+    frameTime: 140
+    span: 140
     texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
   - position: 6
-    frameTime: 400
-    duration: 0
-    span: 178
+    frameTime: 220
+    span: 80
     texture: {fileID: 2800000, guid: 532db4b81444bf146af1274336b25d7b, type: 3}
   - position: 3
-    frameTime: 500
-    duration: 0
-    span: 100
+    frameTime: 323
+    span: 103
     texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
   - position: 6
-    frameTime: 710.5
-    duration: 0
-    span: 210.5
+    frameTime: 500
+    span: 177
     texture: {fileID: 2800000, guid: 532db4b81444bf146af1274336b25d7b, type: 3}
+  - position: 5
+    frameTime: 627
+    span: 127
+    texture: {fileID: 2800000, guid: 4eb54f640317def49b50e2171c490010, type: 3}
   - position: 8
-    frameTime: 915
-    duration: 0
-    span: 204.5
+    frameTime: 727
+    span: 100
     texture: {fileID: 2800000, guid: 8617502730ad9264097fe9fec9cfa9a2, type: 3}
-  - position: 2
-    frameTime: 1062
-    duration: 0
-    span: 185
+  - position: 1
+    frameTime: 881
+    span: 154
+    texture: {fileID: 2800000, guid: a0d055dce23161e4bb1168aa3ce9d1c7, type: 3}
+  - position: 4
+    frameTime: 919
+    span: 22
     texture: {fileID: 2800000, guid: 00c4bf2a8f9ebfe4c9f031caceddd0ff, type: 3}
   - position: 1
-    frameTime: 1189
-    duration: 0
-    span: 89
+    frameTime: 1044
+    span: 141
     texture: {fileID: 2800000, guid: a0d055dce23161e4bb1168aa3ce9d1c7, type: 3}
+  - position: 6
+    frameTime: 1081
+    span: 37
+    texture: {fileID: 2800000, guid: 532db4b81444bf146af1274336b25d7b, type: 3}
   - position: 5
-    frameTime: 1350
-    duration: 0
-    span: 161
+    frameTime: 1151
+    span: 70
     texture: {fileID: 2800000, guid: 4eb54f640317def49b50e2171c490010, type: 3}
+  finalFrameDelay: 60
 --- !u!82 &7225618064688321126
 AudioSource:
   m_ObjectHideFlags: 0
@@ -137,7 +142,7 @@ AudioSource:
   MinDistance: 1
   MaxDistance: 500
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 2
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -170,7 +175,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

@@ -11,6 +11,7 @@ public class RobotLabMain : MonoBehaviour
 {
     public void Start()
     {
+        //CreateVOTap();
         CreateWallLights();
         CreateWindowTaps();
         CreateTurbineTaps();
@@ -22,6 +23,27 @@ public class RobotLabMain : MonoBehaviour
         //{
         //    XLSound.StopSoundWithTag("WallLight");
         //});
+    }
+
+
+    protected void CreateVOTap()
+    {
+        GameObject t = GameObject.FindGameObjectWithTag("BlastDoor");
+        var collider = t.AddComponent<SphereCollider>();
+        collider.center = Vector3.zero;
+        var lHandler = t.AddComponent<TurbineClickHandler>();
+        lHandler.OnTap += (GameObject obj) =>
+        {
+            XLSound.PlayVOSound(Sounds.AttractVO_heyDoIKnowYouFromSomewhere_v1, (VOPositions pos) =>
+            {
+                L.Log(LogEventType.EVENT, $"VO event: {pos}");
+            }, () =>
+            {
+                L.Log(LogEventType.STRING, $"VO Completed");
+            });
+        };
+
+        
     }
 
 
