@@ -78,7 +78,7 @@ namespace XavierLab
             RefreshProperties();
 
             voImages = new Dictionary<VOPositions, Texture>();
-            foreach(VOPositions p in Enum.GetValues(typeof(VOPositions)))
+            foreach (VOPositions p in Enum.GetValues(typeof(VOPositions)))
             {
                 Texture texture = Resources.Load<Texture>($"vo/images/{p.ToString()}");
                 voImages.Add(p, texture);
@@ -93,7 +93,7 @@ namespace XavierLab
 
         public void OnDisable()
         {
-                      
+
         }
 
 
@@ -106,7 +106,7 @@ namespace XavierLab
             finalFrameDelayObj = serializedObject.FindProperty("finalFrameDelay");
         }
 
-        
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -121,10 +121,10 @@ namespace XavierLab
 
             GUIStyle lenStyle = new GUIStyle(EditorStyles.label);
             lenStyle.normal.textColor = Color.yellow;
-            EditorGUILayout.LabelField("Clip Length",$"{recorder.clipLength}", lenStyle);
-            GUILayout.Space(10f);            
+            EditorGUILayout.LabelField("Clip Length", $"{recorder.clipLength}", lenStyle);
+            GUILayout.Space(10f);
 
-            if(IsRecordingSentence)
+            if (IsRecordingSentence)
             {
                 DrawSentenceRecorder();
             }
@@ -134,7 +134,7 @@ namespace XavierLab
                 frames = new List<VORecorderFrame>();
                 if (recorder.frames != null) frames.AddRange(recorder.frames);
             }
-            
+
             ValidateAndSaveFrames();
 
             serializedObject.ApplyModifiedProperties();
@@ -163,7 +163,7 @@ namespace XavierLab
             recorder.frames = frames;
         }
 
-        
+
         string sentence;
         void DrawSentenceRecorder()
         {
@@ -177,17 +177,17 @@ namespace XavierLab
 
                 // ie: E Ooh E Ooh UR FV SilentMB STCh SilentMB UR
                 int delay = Mathf.FloorToInt(recorder.clipLength / count);
-                for(int i = 0; i < count; i++)
+                for (int i = 0; i < count; i++)
                 {
                     frames.Add(new VORecorderFrame
                     {
                         position = XLSound.GetEnumForString<VOPositions>(ary[i]),
-                        frameTime = Mathf.Max(1,i) * delay
+                        frameTime = i * delay
                     });
                 }
 
                 L.Log(LogEventType.INT, $"final count: {count}, delay: {delay}");
-                
+
                 sentenceToken.Cancel();
             }
         }
@@ -197,7 +197,7 @@ namespace XavierLab
         void DrawNormalEditor()
         {
             DrawFrameList();
-            
+
             GUILayout.Space(10f);
             finalFrameDelayObj.intValue = EditorGUILayout.IntField("Final Frame Duration:", finalFrameDelayObj.intValue);
             GUILayout.Space(10f);
@@ -223,7 +223,7 @@ namespace XavierLab
             {
                 Preview(frames);
             }
-            
+
         }
 
 
@@ -254,7 +254,7 @@ namespace XavierLab
         float p = 0.0f;
         Vector4 lastLine;
         float UpdateFrameTimePoint(float point)
-        {        
+        {
             p = point / waveRect.width;
             UpdateTimeStampsAndLine(p);
 
@@ -269,16 +269,15 @@ namespace XavierLab
             UpdateLastLine(new Vector2(areaWidth * p, 0), new Vector2(areaWidth * p, 100));
         }
 
-        
+
         VORecorderFrame editedFrame;
         void DrawWaveForm()
-        {            
+        {
             GUILayout.Space(10f);
-            
+
             var tex = XLSoundUtils.PaintWaveformSpectrum(source.clip, (int)areaWidth, 100, Color.green);
             if (lastLine != null)
             {
-                L.Log(LogEventType.INT, $"should draw line: {lastLine}");
                 XLSoundUtils.DrawTimeMarkerLine(tex, new Vector2(lastLine.x, lastLine.y), new Vector2(lastLine.z, lastLine.w), Color.red);
             }
             var centeredStyle = GUI.skin.GetStyle("Label");
@@ -305,10 +304,10 @@ namespace XavierLab
                     }
 
                     Repaint();
-                }                
+                }
             }
 
-            if(IsEditingFrame)
+            if (IsEditingFrame)
             {
                 editedFrame.frameTime = EditorGUILayout.IntField("Time Stamp:", currentTimeStamp);
                 editedFrame.position = (VOPositions)EditorGUILayout.EnumPopup("Primitive to create:", editedFrame.position);
@@ -348,7 +347,7 @@ namespace XavierLab
                     {
                         frameTime = lastFrame
                     };
-                    
+
                     frames.Add(editedFrame);
                     editFrameToken = new CancellationTokenSource();
                 }
@@ -418,7 +417,7 @@ namespace XavierLab
             {
                 frame = frames.Dequeue();
                 nextTexture = frame.texture;
-                if(!didStartAudio)
+                if (!didStartAudio)
                 {
                     XLSoundUtils.PlayClip(source.clip);
                     didStartAudio = true;
@@ -439,7 +438,7 @@ namespace XavierLab
             Queue<VORecorderFrame> que = new Queue<VORecorderFrame>();
 
             int lastTime = 0;
-            foreach(VORecorderFrame v in list)
+            foreach (VORecorderFrame v in list)
             {
                 v.texture = voImages[v.position];
                 v.span = v.frameTime - lastTime;
