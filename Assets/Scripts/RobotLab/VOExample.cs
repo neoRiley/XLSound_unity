@@ -42,7 +42,7 @@ public class VOExample : MonoBehaviour
     
     public virtual void OnMouseUpAsButton()
     {
-        XLSound.PlayVOSound(Sounds.AttractVO_heyDoIKnowYouFromSomewhere_v1, (VOPositions pos) =>
+        XLSound.PlayVOSound(Sounds.AttractVO_havingAGoodDay_v1, (VOPositions pos) =>
         {
             L.Log(LogEventType.EVENT, $"VO event: {pos}");
             renderer.enabled = true;

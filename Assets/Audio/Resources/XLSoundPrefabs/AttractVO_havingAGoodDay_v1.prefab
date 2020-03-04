@@ -55,8 +55,8 @@ MonoBehaviour:
   autoPlay: 0
   loop: 0
   snapshot: {fileID: 24500006, guid: 20e612f59a5f6ca46953aa4056925b98, type: 2}
-  tags: 0
-  tagsList: 
+  tags: 65536
+  tagsList: BlastDoor
   prefabPath: 
   pitchRange: 0
 --- !u!114 &-630799010095144982
@@ -72,7 +72,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   clipLength: 1085
-  frames: []
+  frames:
+  - id: -1
+    position: 3
+    frameTime: 87
+    span: 87
+    texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
+  - id: -1
+    position: 8
+    frameTime: 166
+    span: 79
+    texture: {fileID: 2800000, guid: 8617502730ad9264097fe9fec9cfa9a2, type: 3}
+  - id: -1
+    position: 4
+    frameTime: 215
+    span: 49
+    texture: {fileID: 2800000, guid: b0afb865b3c3c564d82560c8c6d788dd, type: 3}
+  - id: -1
+    position: 6
+    frameTime: 319
+    span: 104
+    texture: {fileID: 2800000, guid: 532db4b81444bf146af1274336b25d7b, type: 3}
+  - id: -1
+    position: 3
+    frameTime: 394
+    span: 75
+    texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
+  - id: -1
+    position: 4
+    frameTime: 593
+    span: 199
+    texture: {fileID: 2800000, guid: b0afb865b3c3c564d82560c8c6d788dd, type: 3}
+  - id: -1
+    position: 1
+    frameTime: 713
+    span: 120
+    texture: {fileID: 2800000, guid: a0d055dce23161e4bb1168aa3ce9d1c7, type: 3}
   finalFrameDelay: 100
 --- !u!82 &3919464549828408270
 AudioSource:
@@ -96,9 +131,9 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 50
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 2
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0

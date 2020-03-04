@@ -43,14 +43,6 @@ namespace XavierLab
             return id;
         }
 
-        bool IsRecording
-        {
-            get
-            {
-                if (recorderToken != null) return !recorderToken.IsCancellationRequested;
-                return false;
-            }
-        }
 
         bool IsRecordingSentence
         {
@@ -75,7 +67,6 @@ namespace XavierLab
         AudioSource source;
         List<VORecorderFrame> frames;
 
-        CancellationTokenSource recorderToken;
         CancellationTokenSource sentenceToken;
         CancellationTokenSource editFrameToken;
         DateTime startTime;
@@ -102,11 +93,7 @@ namespace XavierLab
 
         public void OnDisable()
         {
-            if (IsRecording)
-            {
-                recorderToken.Cancel();
-                L.Log(LogEventType.WARN, $"LEAVING VORECORDER - turning off recording", true);
-            }            
+                      
         }
 
 
@@ -209,92 +196,34 @@ namespace XavierLab
         bool isConfirmingRecording = false;
         void DrawNormalEditor()
         {
-            //DrawDefaultInspector();
             DrawFrameList();
-            DrawWaveForm();
-
+            
             GUILayout.Space(10f);
             finalFrameDelayObj.intValue = EditorGUILayout.IntField("Final Frame Duration:", finalFrameDelayObj.intValue);
             GUILayout.Space(10f);
 
+            DrawWaveForm();
+
+            if (GUILayout.Button("Enter Sentence"))
+            {
+                bool confirm = EditorUtility.DisplayDialog(
+                    "Replace current recording?",
+                    "A recording already exists - do you want to replace it with a new recording?",
+                    "Yes", "No");
+
+                if (confirm)
+                {
+                    frames = new List<VORecorderFrame>(); // clear incase old exists
+                    sentenceToken = new CancellationTokenSource();
+                    L.Log(LogEventType.ERROR, $"Enter sentence recording started", true);
+                }
+            }
+
+            if (frames != null && frames.Count > 0)
+            {
+                Preview(frames);
+            }
             
-
-            if (!IsRecording)
-            {
-                if (!isConfirmingRecording)
-                {
-                    if (GUILayout.Button("Record"))
-                    {
-                        isConfirmingRecording = true;
-                    }
-                }
-                else
-                {
-                    GUIStyle s = new GUIStyle(EditorStyles.miniButton);
-                    s.normal.textColor = Color.yellow;
-                    s.onHover.textColor = Color.yellow;
-                    if (GUILayout.Button("Do you want to replace current recording?",s))
-                    {
-                        //bool confirm = EditorUtility.DisplayDialog(
-                        //    "Replace current recording?",
-                        //    "A recording already exists - do you want to replace it with a new recording?",
-                        //    "Yes", "No");
-                                                
-                        frames = new List<VORecorderFrame>(); // clear incase old exists
-                        recorderToken = new CancellationTokenSource();
-                        L.Log(LogEventType.ERROR, $"Recording started: clip length: {source.clip.length}", true);
-                        XLSoundUtils.PlayClip(source.clip);
-                        startTime = DateTime.Now;
-                        MonitorAudioClip(source.clip);
-                        isConfirmingRecording = false;
-                    }
-                    if (GUILayout.Button("Cancel"))
-                    {
-                        isConfirmingRecording = false;
-                    }
-                }
-
-                if (GUILayout.Button("Enter Sentence"))
-                {
-                    bool confirm = EditorUtility.DisplayDialog(
-                        "Replace current recording?",
-                        "A recording already exists - do you want to replace it with a new recording?",
-                        "Yes", "No");
-
-                    if (confirm)
-                    {
-                        frames = new List<VORecorderFrame>(); // clear incase old exists
-                        sentenceToken = new CancellationTokenSource();
-                        L.Log(LogEventType.ERROR, $"Enter sentence recording started", true);
-                    }
-                }
-
-                if (frames != null && frames.Count > 0)
-                {
-                    Preview(frames);
-                }
-            }
-            else
-            {
-                GUIStyle s = new GUIStyle(EditorStyles.miniButton);
-                s.normal.textColor = Color.red;
-                s.onHover.textColor = Color.red;
-                if (GUILayout.Button("Stop Recording", s))
-                {
-                    L.Log(LogEventType.ERROR, $"Recording stopped", true);
-                    XLSoundUtils.StopAllClips();
-                    recorderToken.Cancel();
-                }
-                else
-                {
-                    Event e = Event.current;
-                    if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Space)
-                    {
-                        var frame = RecordFrame();
-                        frames.Add(frame);
-                    }
-                }
-            }
         }
 
 
@@ -340,12 +269,10 @@ namespace XavierLab
             UpdateLastLine(new Vector2(areaWidth * p, 0), new Vector2(areaWidth * p, 100));
         }
 
-
-        int editFrameID = -1;
+        
         VORecorderFrame editedFrame;
         void DrawWaveForm()
-        {
-            
+        {            
             GUILayout.Space(10f);
             
             var tex = XLSoundUtils.PaintWaveformSpectrum(source.clip, (int)areaWidth, 100, Color.green);
@@ -482,7 +409,7 @@ namespace XavierLab
 
             nextTexture = voImages[VOPositions.SilentMB];
 
-            await Task.Delay(1000);
+            await Task.Delay(250);
 
             var playTime = DateTime.Now;
             bool didStartAudio = false;
@@ -521,49 +448,6 @@ namespace XavierLab
             }
 
             return que;
-        }
-
-
-        async void MonitorAudioClip(AudioClip clip)
-        {
-            CancellationTokenSource token = new CancellationTokenSource();
-            var value = 0;
-            MainEditorDispatcher.Invoke(() =>
-            {
-                value = Mathf.FloorToInt(clip.length * 1000);
-                L.Log(LogEventType.BOOL, $"value: {value}");
-                token.Cancel();
-            });
-
-            while (!token.IsCancellationRequested) await Task.Delay(5);
-
-            await Task.Run(async () =>
-            {
-                L.Log(LogEventType.ERROR, $"Recording should last: {value}", true);
-                await Task.Delay(value);
-            });
-
-
-            MainEditorDispatcher.Invoke(() =>
-            {
-                L.Log(LogEventType.ERROR, $"Recording stopped", true);
-                recorderToken.Cancel();
-                XLSoundUtils.StopAllClips();
-                Repaint();
-            });
-        }
-
-
-        VORecorderFrame RecordFrame()
-        {
-            int time = Mathf.FloorToInt((float)(DateTime.Now - startTime).TotalMilliseconds);
-            L.Log(LogEventType.BOOL, $"CREATE VO FRAME: {time}", true);
-            VORecorderFrame frame = new VORecorderFrame
-            {
-                frameTime = time
-            };
-
-            return frame;
         }
     }
 

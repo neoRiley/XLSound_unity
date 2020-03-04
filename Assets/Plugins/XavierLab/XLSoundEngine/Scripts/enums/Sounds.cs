@@ -11,5 +11,6 @@ public enum Sounds:int
 	window_tap_0=36,
 	XWingsAttack_complete_master=28,
 	AttractVO_heyDoIKnowYouFromSomewhere_v1=38,
+	AttractVO_havingAGoodDay_v1=40,
 	ExhaustPort_complete_master=27
 }

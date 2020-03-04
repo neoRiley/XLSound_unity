@@ -73,49 +73,55 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clipLength: 1662
   frames:
-  - position: 3
-    frameTime: 140
-    span: 140
+  - id: -1
+    position: 3
+    frameTime: 124
+    span: 124
     texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
-  - position: 6
-    frameTime: 220
-    span: 80
+  - id: -1
+    position: 6
+    frameTime: 254
+    span: 130
     texture: {fileID: 2800000, guid: 532db4b81444bf146af1274336b25d7b, type: 3}
-  - position: 3
-    frameTime: 323
-    span: 103
+  - id: -1
+    position: 3
+    frameTime: 332
+    span: 78
     texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
-  - position: 6
-    frameTime: 500
-    span: 177
+  - id: -1
+    position: 6
+    frameTime: 498
+    span: 166
     texture: {fileID: 2800000, guid: 532db4b81444bf146af1274336b25d7b, type: 3}
-  - position: 5
-    frameTime: 627
-    span: 127
+  - id: -1
+    position: 5
+    frameTime: 664
+    span: 166
     texture: {fileID: 2800000, guid: 4eb54f640317def49b50e2171c490010, type: 3}
-  - position: 8
-    frameTime: 727
-    span: 100
+  - id: -1
+    position: 8
+    frameTime: 753
+    span: 89
     texture: {fileID: 2800000, guid: 8617502730ad9264097fe9fec9cfa9a2, type: 3}
-  - position: 1
-    frameTime: 881
-    span: 154
+  - id: -1
+    position: 1
+    frameTime: 838
+    span: 85
     texture: {fileID: 2800000, guid: a0d055dce23161e4bb1168aa3ce9d1c7, type: 3}
-  - position: 4
-    frameTime: 919
-    span: 22
+  - id: -1
+    position: 2
+    frameTime: 878
+    span: 40
     texture: {fileID: 2800000, guid: 00c4bf2a8f9ebfe4c9f031caceddd0ff, type: 3}
-  - position: 1
-    frameTime: 1044
-    span: 141
+  - id: -1
+    position: 1
+    frameTime: 1033
+    span: 155
     texture: {fileID: 2800000, guid: a0d055dce23161e4bb1168aa3ce9d1c7, type: 3}
-  - position: 6
-    frameTime: 1081
-    span: 37
-    texture: {fileID: 2800000, guid: 532db4b81444bf146af1274336b25d7b, type: 3}
-  - position: 5
-    frameTime: 1151
-    span: 70
+  - id: -1
+    position: 5
+    frameTime: 1237
+    span: 204
     texture: {fileID: 2800000, guid: 4eb54f640317def49b50e2171c490010, type: 3}
   finalFrameDelay: 60
 --- !u!82 &7225618064688321126
@@ -140,7 +146,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 50
   Pan2D: 0
   rolloffMode: 2
   BypassEffects: 0
