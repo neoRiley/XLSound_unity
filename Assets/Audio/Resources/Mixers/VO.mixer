@@ -19,6 +19,20 @@ AudioMixerGroupController:
   m_Mute: 0
   m_Solo: 0
   m_BypassEffects: 0
+--- !u!244 &-5372946381426314494
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: dcaaa21f57f0d594d93c38d81bb0e758
+  m_EffectName: Attenuation
+  m_MixLevel: 899c7074dcaf4e742b1710f2c979c950
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
 --- !u!241 &24100000
 AudioMixerController:
   m_ObjectHideFlags: 0
@@ -39,6 +53,7 @@ AudioMixerController:
   - guids:
     - fca3cc1e02d822848b72683648689973
     - c64777d43cd168d4f9ee14509b808a39
+    - 9426eefe411c02e43955ebdf4119befb
     name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 24500006}
@@ -53,6 +68,7 @@ AudioMixerGroupController:
   m_GroupID: fca3cc1e02d822848b72683648689973
   m_Children:
   - {fileID: -6259067021996698450}
+  - {fileID: 6708187063816916720}
   m_Volume: 712a43f69fdf56e42b51d61a7a7054ec
   m_Pitch: cb98380f8cab57445811717ca0ba4193
   m_Send: 00000000000000000000000000000000
@@ -87,6 +103,25 @@ AudioMixerSnapshotController:
   m_SnapshotID: 01954752cfec9474b9042578afd932ca
   m_FloatValues: {}
   m_TransitionOverrides: {}
+--- !u!243 &6708187063816916720
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GoodDay
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: 9426eefe411c02e43955ebdf4119befb
+  m_Children: []
+  m_Volume: c579197ea4b6b4e42b5c89b26e78dee1
+  m_Pitch: b8b1fa06791c98b4d8ada7dc30bf35e2
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: -5372946381426314494}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
 --- !u!244 &7985281088344601542
 AudioMixerEffectController:
   m_ObjectHideFlags: 3

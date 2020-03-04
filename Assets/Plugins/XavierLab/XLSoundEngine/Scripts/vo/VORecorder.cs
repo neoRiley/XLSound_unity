@@ -30,6 +30,19 @@ namespace XavierLab
     [CanEditMultipleObjects]
     public class VORecorderInspector : Editor
     {
+        public static int GetNextVOFrameID()
+        {
+            int id = 0;
+            if (PlayerPrefs.HasKey("VORecorderFrameIDSource"))
+            {
+                id = PlayerPrefs.GetInt("VORecorderFrameIDSource") + 1;
+            }
+
+            PlayerPrefs.SetInt("VORecorderFrameIDSource", id);
+
+            return id;
+        }
+
         bool IsRecording
         {
             get
@@ -48,6 +61,15 @@ namespace XavierLab
             }
         }
 
+        bool IsEditingFrame
+        {
+            get
+            {
+                if (editFrameToken != null) return !editFrameToken.IsCancellationRequested;
+                return false;
+            }
+        }
+
         VORecorder recorder;
         SerializedProperty finalFrameDelayObj;
         AudioSource source;
@@ -55,6 +77,7 @@ namespace XavierLab
 
         CancellationTokenSource recorderToken;
         CancellationTokenSource sentenceToken;
+        CancellationTokenSource editFrameToken;
         DateTime startTime;
         Dictionary<VOPositions, Texture> voImages;
 
@@ -72,6 +95,8 @@ namespace XavierLab
 
             // set initial frame
             nextTexture = voImages[VOPositions.SilentMB];
+
+            XLSoundUtils.StopAllClips();
         }
 
 
@@ -100,6 +125,10 @@ namespace XavierLab
             serializedObject.Update();
             RefreshProperties();
 
+            areaWidth = EditorGUIUtility.currentViewWidth;
+            waveRect.x = 20.0f;
+            waveRect.xMax = areaWidth - waveRect.x;
+
             GUILayout.Label("VO Recorder", EditorStyles.boldLabel);
             GUILayout.Space(10f);
 
@@ -118,9 +147,7 @@ namespace XavierLab
                 frames = new List<VORecorderFrame>();
                 if (recorder.frames != null) frames.AddRange(recorder.frames);
             }
-
-
-
+            
             ValidateAndSaveFrames();
 
             serializedObject.ApplyModifiedProperties();
@@ -141,16 +168,10 @@ namespace XavierLab
 
         void ValidateAndSaveFrames()
         {
-            //for(int i=0; i < frames.Count; i++)
-            //{
-            //    var prev = i > 0 ? frames[i - 1] : null;                 //i=0? null, i=1? 0
-            //    var current = frames[i];                                 //i=0? 0   , i=1? 1
-            //    var next = i <= frames.Count - 2 ? frames[i + 1] : null; //i=0? 1   , i=1? 2
-
-            //    if (prev == null) current.frameTime = Mathf.Max(0, current.frameTime);
-            //    else if (prev != null && next != null) current.frameTime = Mathf.Clamp(current.frameTime, prev.frameTime, next.frameTime);
-            //    if (next == null) current.frameTime = Mathf.Min(recorder.clipLength, current.frameTime);
-            //}
+            if (frames != null && frames.Count > 0)
+            {
+                frames.Sort((x, y) => x.frameTime - y.frameTime);
+            }
 
             recorder.frames = frames;
         }
@@ -184,10 +205,13 @@ namespace XavierLab
             }
         }
 
+
         bool isConfirmingRecording = false;
         void DrawNormalEditor()
         {
-            bool changed = DrawDefaultInspector();
+            //DrawDefaultInspector();
+            DrawFrameList();
+            DrawWaveForm();
 
             GUILayout.Space(10f);
             finalFrameDelayObj.intValue = EditorGUILayout.IntField("Final Frame Duration:", finalFrameDelayObj.intValue);
@@ -271,8 +295,158 @@ namespace XavierLab
                     }
                 }
             }
+        }
 
+
+        void DrawFrameList()
+        {
+            if (frames != null)
+            {
+                foreach (VORecorderFrame frame in frames)
+                {
+                    if (GUILayout.Button($"{frame.position}: {frame.frameTime}"))
+                    {
+                        editedFrame = frame;
+                        var p = (frame.frameTime * 0.001f) / source.clip.length;
+                        UpdateTimeStampsAndLine(p);
+                        PlayAudioFromPercentage(p);
+                        editFrameToken = new CancellationTokenSource();
+                    }
+                    GUILayout.Space(5f);
+                }
+            }
+        }
+
+
+        Rect waveRect = new Rect();
+        float areaWidth = 0.0f;
+        int currentTimeStamp = 0;
+        float time = 0.0f;
+        float p = 0.0f;
+        Vector4 lastLine;
+        float UpdateFrameTimePoint(float point)
+        {        
+            p = point / waveRect.width;
+            UpdateTimeStampsAndLine(p);
+
+            return p;
+        }
+
+
+        void UpdateTimeStampsAndLine(float p)
+        {
+            time = source.clip.length * p;
+            currentTimeStamp = Mathf.FloorToInt(time * 1000);
+            UpdateLastLine(new Vector2(areaWidth * p, 0), new Vector2(areaWidth * p, 100));
+        }
+
+
+        int editFrameID = -1;
+        VORecorderFrame editedFrame;
+        void DrawWaveForm()
+        {
             
+            GUILayout.Space(10f);
+            
+            var tex = XLSoundUtils.PaintWaveformSpectrum(source.clip, (int)areaWidth, 100, Color.green);
+            if (lastLine != null)
+            {
+                L.Log(LogEventType.INT, $"should draw line: {lastLine}");
+                XLSoundUtils.DrawTimeMarkerLine(tex, new Vector2(lastLine.x, lastLine.y), new Vector2(lastLine.z, lastLine.w), Color.red);
+            }
+            var centeredStyle = GUI.skin.GetStyle("Label");
+            centeredStyle.alignment = TextAnchor.MiddleCenter;
+            GUILayout.Box(tex, centeredStyle);
+
+            bool isOnBox = false;
+
+            if (GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) isOnBox = true;
+            else isOnBox = false;
+
+
+            if (isOnBox)
+            {
+                Event e = Event.current;
+
+                if (e.type == EventType.MouseDrag || e.type == EventType.MouseUp)
+                {
+                    var point = e.mousePosition.x - waveRect.x;
+                    var per = UpdateFrameTimePoint(point);
+                    if (e.type == EventType.MouseUp && isOnBox)
+                    {
+                        PlayAudioFromPercentage(p);
+                    }
+
+                    Repaint();
+                }                
+            }
+
+            if(IsEditingFrame)
+            {
+                editedFrame.frameTime = EditorGUILayout.IntField("Time Stamp:", currentTimeStamp);
+                editedFrame.position = (VOPositions)EditorGUILayout.EnumPopup("Primitive to create:", editedFrame.position);
+                if (GUILayout.Button("Done"))
+                {
+                    L.Log(LogEventType.BOOL, $"finished editing frame");
+                    editFrameToken.Cancel();
+                }
+                if (GUILayout.Button("Delete"))
+                {
+                    bool confirm = EditorUtility.DisplayDialog(
+                        "Delete?",
+                        "Are you sure you want to remove this animation position?",
+                        "Yes", "No");
+
+                    if (confirm)
+                    {
+                        editFrameToken.Cancel();
+                        frames.Remove(editedFrame);
+                    }
+                }
+            }
+            else
+            {
+                EditorGUILayout.FloatField("Time Stamp:", currentTimeStamp);
+                if (GUILayout.Button("Add New"))
+                {
+                    int lastFrame = currentTimeStamp;
+                    if (currentTimeStamp <= 0)
+                    {
+                        lastFrame = frames[frames.Count - 1].frameTime + 10;
+                        var p = (lastFrame * 0.001f) / source.clip.length;
+                        UpdateTimeStampsAndLine(p);
+                    }
+                    L.Log(LogEventType.BOOL, $"add new frame. lastFrame: {lastFrame}");
+                    editedFrame = new VORecorderFrame
+                    {
+                        frameTime = lastFrame
+                    };
+                    
+                    frames.Add(editedFrame);
+                    editFrameToken = new CancellationTokenSource();
+                }
+            }
+            GUILayout.Space(10f);
+        }
+
+
+        void PlayAudioFromPercentage(float p)
+        {
+            var samples = XLSoundUtils.GetSampleCount(source.clip);
+            var playFrom = Mathf.FloorToInt(samples * p);
+            XLSoundUtils.PlayClip(source.clip, playFrom, false);
+        }
+
+
+        void UpdateLastLine(Vector2 p1, Vector2 p2)
+        {
+            lastLine = new Vector4
+            {
+                x = p1.x,
+                y = p1.y,
+                z = p2.x,
+                w = p2.y
+            };
         }
 
 
