@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Threading;
 using System.Reflection;
+using System.IO;
 
 namespace XavierLab
 {
@@ -107,10 +108,27 @@ namespace XavierLab
         }
 
 
+        bool CheckIsPrefab(GameObject g)
+        {
+            bool exists = false;
+            GameObject prefab = PrefabUtility.GetCorrespondingObjectFromOriginalSource(g);
+            if (prefab != null) exists = true;
+            else
+            {
+                var path = AssetDatabase.GetAssetPath(g);
+                exists = Path.GetExtension(path).Contains(".prefab");
+            }
+
+            return exists;
+        }
+
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
             RefreshProperties();
+
+            var isPrefab = CheckIsPrefab(recorder.gameObject);
 
             areaWidth = EditorGUIUtility.currentViewWidth;
             waveRect.x = 20.0f;
@@ -142,12 +160,24 @@ namespace XavierLab
             // update prefab AFTER the changed values are applied to the SoundClip object
             if (GUI.changed)
             {
+                L.Log(LogEventType.BOOL, $"GUI has changed", true);
                 var inScenePrefab = PrefabUtility.GetOutermostPrefabInstanceRoot(recorder.gameObject);
                 if (inScenePrefab != null)
                 {
                     L.Log(LogEventType.METHOD, $"should update prefab FROM scene");
                     // gameobject is IN the scene
                     PrefabUtility.ApplyPrefabInstance(recorder.gameObject, InteractionMode.UserAction);
+                }
+                else if (isPrefab)
+                {
+                    var path = AssetDatabase.GetAssetPath(recorder.gameObject); // this works IF we're selecting the prefab in project view
+                    L.Log(LogEventType.BOOL, $"isPrefab - path: {path}", true);
+                    if (String.IsNullOrEmpty(path))
+                    {
+                        // this works if the asset is in the scene, is a prefab and is selected
+                        GameObject prefab = PrefabUtility.GetCorrespondingObjectFromOriginalSource(recorder.gameObject);
+                        path = AssetDatabase.GetAssetPath(prefab);
+                    }
                 }
             }
         }
@@ -416,15 +446,16 @@ namespace XavierLab
             while (frames.Count > 0)
             {
                 frame = frames.Dequeue();
-                nextTexture = frame.texture;
                 if (!didStartAudio)
                 {
                     XLSoundUtils.PlayClip(source.clip);
                     didStartAudio = true;
                 }
+                await Task.Delay(frame.span);
+                nextTexture = frame.texture;
+
 
                 Repaint();
-                await Task.Delay(frame.span);
             }
 
             await Task.Delay(recorder.finalFrameDelay);
@@ -442,6 +473,7 @@ namespace XavierLab
             {
                 v.texture = voImages[v.position];
                 v.span = v.frameTime - lastTime;
+                L.Log(LogEventType.INT, $"span for {v.position}: {v.span}");
                 lastTime = v.frameTime;
                 que.Enqueue(v);
             }
