@@ -151,6 +151,7 @@ namespace XavierLab
         public static async void PlayVOSound(Sounds sound, Action<VOPositions> onMouthChange = null, Action onComplete = null)
         {
             SoundClip soundClip = GetSoundClipForSound(sound);
+            if (soundClip == null) return;
             VORecorder recorder = soundClip.GetComponent<VORecorder>();
 
             try
@@ -170,8 +171,7 @@ namespace XavierLab
                     while (frames.Count > 0)
                     {
                         frame = frames.Dequeue();
-                        onMouthChange?.Invoke(frame.position);
-                        OnVOPositionChanged?.Invoke(frame.position, sound);
+
 
                         if (!didStartAudio)
                         {
@@ -180,6 +180,8 @@ namespace XavierLab
                         }
 
                         await Task.Delay(frame.span);
+                        onMouthChange?.Invoke(frame.position);
+                        OnVOPositionChanged?.Invoke(frame.position, sound);
                     }
 
                     await Task.Delay(recorder.finalFrameDelay);

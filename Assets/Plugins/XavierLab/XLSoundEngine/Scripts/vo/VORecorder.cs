@@ -64,8 +64,6 @@ namespace XavierLab
         }
 
         VORecorder recorder;
-        SerializedProperty finalFrameDelayObj;
-        SerializedProperty framesObj;
         AudioSource source;
         List<VORecorderFrame> frames;
 
@@ -110,41 +108,6 @@ namespace XavierLab
             source = recorder.GetComponent<AudioSource>();
             recorder.clipLength = Mathf.FloorToInt(source.clip.length * 1000);
             frames = recorder.frames;
-            //finalFrameDelayObj = serializedObject.FindProperty("finalFrameDelay");
-            //framesObj = serializedObject.FindProperty("frames").Copy();
-
-            //L.Log(LogEventType.STRING, $"framesObj type: {framesObj.arrayElementType}, size: {framesObj.arraySize}");
-
-            //for (int i = 0; i < framesObj.arraySize; i++)
-            //{
-            //    var obj = framesObj.GetArrayElementAtIndex(i);
-            //    L.Log(LogEventType.BOOL, $"type: {obj.GetType()}");
-            //}
-
-            //if (framesObj.isArray)
-            //{
-            //    int arraylength = 0;
-
-            //    framesObj.Next(true); // skip generic field
-            //    framesObj.Next(true); // advance to array size field
-
-            //    arraylength = framesObj.intValue;
-
-            //    framesObj.Next(true); // advance to first array index
-
-            //    frames = new List<VORecorderFrame>(arraylength);
-
-            //    L.Log(LogEventType.STRING, $"frams arrayLength: {arraylength}");
-
-            //    for (int i = 0; i < arraylength; i++)
-            //    {
-            //        var frame = framesObj.objectReferenceValue;// as object as VORecorderFrame;
-            //        //var frame = framesObj.GetArrayElementAtIndex(i) as object as VORecorderFrame;
-            //        //frames.Add(frame);
-            //        L.Log(LogEventType.STRING, $"frame added to frames: {frame.GetType()}");
-            //        //if (i < arraylength - 1) framesObj.Next(false);
-            //    }
-            //}
         }
 
 
@@ -222,12 +185,6 @@ namespace XavierLab
                     L.Log(LogEventType.METHOD, $"should update prefab FROM scene");
                     // gameobject is IN the scene
                     PrefabUtility.ApplyPrefabInstance(recorder.gameObject, InteractionMode.UserAction);
-                }
-                else if (isPrefab)
-                {
-                    var path = AssetDatabase.GetAssetPath(recorder.gameObject); // this works IF we're selecting the prefab in project view
-                    L.Log(LogEventType.BOOL, $"isPrefab - path: {path}", true);
-
                 }
             }
         }
@@ -336,6 +293,9 @@ namespace XavierLab
                         UpdateTimeStampsAndLine(perc); // make this the red line
                         PlayAudioFromPercentage(perc);
                         editFrameToken = new CancellationTokenSource();
+
+                        var list = frames.Where(x => x.frameTime >= editedFrame.frameTime).ToList();
+                        ShowPreview(list, false);
                     }
                     GUILayout.Space(5f);
                 }
@@ -408,13 +368,16 @@ namespace XavierLab
 
             if (isOnBox && (e.type == EventType.MouseDrag || e.type == EventType.MouseUp))
             {
-                L.Log(LogEventType.INT, $"0: {e.rawType}");
                 var point = e.mousePosition.x - waveRect.x;
                 UpdateFrameTimePoint(point);
 
                 if (e.type == EventType.MouseUp)
                 {
-                    L.Log(LogEventType.INT, $"2");
+                    if (IsEditingFrame)
+                    {
+                        var list = frames.Where(x => x.frameTime >= editedFrame.frameTime).ToList();
+                        ShowPreview(list, false);
+                    }
                     PlayAudioFromPercentage(p);
                 }
                 else XLSoundUtils.StopAllClips();
@@ -524,15 +487,24 @@ namespace XavierLab
         }
 
 
-        async void ShowPreview(List<VORecorderFrame> list)
+        async void ShowPreview(List<VORecorderFrame> list, bool playClip = true)
         {
             isPreviewing = true;
             Queue<VORecorderFrame> frames = GetVOQue(list);
             VORecorderFrame frame;
 
-            nextTexture = voImages[VOPositions.SilentMB];
 
-            await Task.Delay(250);
+
+            if (playClip)
+            {
+                nextTexture = voImages[VOPositions.SilentMB];
+                await Task.Delay(250);
+            }
+            else
+            {
+                frame = frames.Dequeue();
+                nextTexture = voImages[frame.position];
+            }
 
             var playTime = DateTime.Now;
             bool didStartAudio = false;
@@ -540,7 +512,7 @@ namespace XavierLab
             while (frames.Count > 0)
             {
                 frame = frames.Dequeue();
-                if (!didStartAudio)
+                if (!didStartAudio && playClip)
                 {
                     XLSoundUtils.PlayClip(source.clip);
                     didStartAudio = true;
@@ -567,7 +539,6 @@ namespace XavierLab
             {
                 v.texture = voImages[v.position];
                 v.span = v.frameTime - lastTime;
-                L.Log(LogEventType.INT, $"span for {v.position}: {v.span}");
                 lastTime = v.frameTime;
                 que.Enqueue(v);
             }
