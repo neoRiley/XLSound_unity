@@ -445,6 +445,8 @@ namespace XavierLab
 
         void PlayAudioFromPercentage(float p)
         {
+            XLSoundUtils.StopAllClips();
+
             var samples = XLSoundUtils.GetSampleCount(source.clip);
             var playFrom = Mathf.FloorToInt(samples * p);
             XLSoundUtils.PlayClip(source.clip, playFrom, false);
