@@ -65,6 +65,7 @@ namespace XavierLab
 
         VORecorder recorder;
         SerializedProperty finalFrameDelayObj;
+        SerializedProperty framesObj;
         AudioSource source;
         List<VORecorderFrame> frames;
 
@@ -73,6 +74,10 @@ namespace XavierLab
         DateTime startTime;
         Dictionary<VOPositions, Texture> voImages;
 
+        Texture2D waveFormTex;
+        Texture2D tex;
+
+        bool isPrefab = false;
 
         public void OnEnable()
         {
@@ -94,17 +99,67 @@ namespace XavierLab
 
         public void OnDisable()
         {
-
+            SavePrefab();
         }
 
 
         void RefreshProperties()
         {
             recorder = (VORecorder)target;
-
+            isPrefab = CheckIsPrefab(recorder.gameObject);
             source = recorder.GetComponent<AudioSource>();
             recorder.clipLength = Mathf.FloorToInt(source.clip.length * 1000);
-            finalFrameDelayObj = serializedObject.FindProperty("finalFrameDelay");
+            frames = recorder.frames;
+            //finalFrameDelayObj = serializedObject.FindProperty("finalFrameDelay");
+            //framesObj = serializedObject.FindProperty("frames").Copy();
+
+            //L.Log(LogEventType.STRING, $"framesObj type: {framesObj.arrayElementType}, size: {framesObj.arraySize}");
+
+            //for (int i = 0; i < framesObj.arraySize; i++)
+            //{
+            //    var obj = framesObj.GetArrayElementAtIndex(i);
+            //    L.Log(LogEventType.BOOL, $"type: {obj.GetType()}");
+            //}
+
+            //if (framesObj.isArray)
+            //{
+            //    int arraylength = 0;
+
+            //    framesObj.Next(true); // skip generic field
+            //    framesObj.Next(true); // advance to array size field
+
+            //    arraylength = framesObj.intValue;
+
+            //    framesObj.Next(true); // advance to first array index
+
+            //    frames = new List<VORecorderFrame>(arraylength);
+
+            //    L.Log(LogEventType.STRING, $"frams arrayLength: {arraylength}");
+
+            //    for (int i = 0; i < arraylength; i++)
+            //    {
+            //        var frame = framesObj.objectReferenceValue;// as object as VORecorderFrame;
+            //        //var frame = framesObj.GetArrayElementAtIndex(i) as object as VORecorderFrame;
+            //        //frames.Add(frame);
+            //        L.Log(LogEventType.STRING, $"frame added to frames: {frame.GetType()}");
+            //        //if (i < arraylength - 1) framesObj.Next(false);
+            //    }
+            //}
+        }
+
+
+        void SetupWaveformProperties()
+        {
+            areaWidth = EditorGUIUtility.currentViewWidth;
+            waveRect.x = 20.0f;
+            waveRect.xMax = areaWidth - waveRect.x;
+            waveRect.yMax = 100;
+
+            tex = new Texture2D((int)areaWidth, 100, TextureFormat.RGBA32, false);
+            if (waveFormTex == null && source != null)
+            {
+                waveFormTex = XLSoundUtils.PaintWaveformSpectrum(source.clip, (int)areaWidth, 100, Color.green);
+            }
         }
 
 
@@ -125,17 +180,17 @@ namespace XavierLab
 
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
+            //serializedObject.Update();
             RefreshProperties();
 
-            var isPrefab = CheckIsPrefab(recorder.gameObject);
 
-            areaWidth = EditorGUIUtility.currentViewWidth;
-            waveRect.x = 20.0f;
-            waveRect.xMax = areaWidth - waveRect.x;
+
+            Event e = Event.current;
 
             GUILayout.Label("VO Recorder", EditorStyles.boldLabel);
             GUILayout.Space(10f);
+
+            SetupWaveformProperties();
 
             GUIStyle lenStyle = new GUIStyle(EditorStyles.label);
             lenStyle.normal.textColor = Color.yellow;
@@ -148,14 +203,14 @@ namespace XavierLab
             }
             else
             {
-                DrawNormalEditor();
+                DrawNormalEditor(e);
                 frames = new List<VORecorderFrame>();
                 if (recorder.frames != null) frames.AddRange(recorder.frames);
             }
 
-            ValidateAndSaveFrames();
 
-            serializedObject.ApplyModifiedProperties();
+            ValidateAndSaveFrames();
+            //serializedObject.ApplyModifiedProperties();
 
             // update prefab AFTER the changed values are applied to the SoundClip object
             if (GUI.changed)
@@ -172,13 +227,21 @@ namespace XavierLab
                 {
                     var path = AssetDatabase.GetAssetPath(recorder.gameObject); // this works IF we're selecting the prefab in project view
                     L.Log(LogEventType.BOOL, $"isPrefab - path: {path}", true);
-                    if (String.IsNullOrEmpty(path))
-                    {
-                        // this works if the asset is in the scene, is a prefab and is selected
-                        GameObject prefab = PrefabUtility.GetCorrespondingObjectFromOriginalSource(recorder.gameObject);
-                        path = AssetDatabase.GetAssetPath(prefab);
-                    }
+
                 }
+            }
+        }
+
+
+        void SavePrefab()
+        {
+            if (isPrefab)
+            {
+                if (PrefabUtility.SavePrefabAsset(recorder.gameObject, out bool saved))
+                {
+                    L.Log(LogEventType.BOOL, $"prefab saved", true);
+                }
+                else L.Log(LogEventType.BOOL, $"prefab NOT saved", true);
             }
         }
 
@@ -190,6 +253,8 @@ namespace XavierLab
                 frames.Sort((x, y) => x.frameTime - y.frameTime);
             }
 
+            //framesObj.Get
+            //framesObj.objectReferenceValue = frames.ToArray();
             recorder.frames = frames;
         }
 
@@ -224,15 +289,15 @@ namespace XavierLab
 
 
         bool isConfirmingRecording = false;
-        void DrawNormalEditor()
+        void DrawNormalEditor(Event e)
         {
             DrawFrameList();
 
             GUILayout.Space(10f);
-            finalFrameDelayObj.intValue = EditorGUILayout.IntField("Final Frame Duration:", finalFrameDelayObj.intValue);
+            recorder.finalFrameDelay = EditorGUILayout.IntField("Final Frame Duration:", recorder.finalFrameDelay);
             GUILayout.Space(10f);
 
-            DrawWaveForm();
+            DrawWaveForm(e);
 
             if (GUILayout.Button("Enter Sentence"))
             {
@@ -263,12 +328,13 @@ namespace XavierLab
             {
                 foreach (VORecorderFrame frame in frames)
                 {
+                    var perc = (frame.frameTime * 0.001f) / source.clip.length;
+
                     if (GUILayout.Button($"{frame.position}: {frame.frameTime}"))
                     {
                         editedFrame = frame;
-                        var p = (frame.frameTime * 0.001f) / source.clip.length;
-                        UpdateTimeStampsAndLine(p);
-                        PlayAudioFromPercentage(p);
+                        UpdateTimeStampsAndLine(perc); // make this the red line
+                        PlayAudioFromPercentage(perc);
                         editFrameToken = new CancellationTokenSource();
                     }
                     GUILayout.Space(5f);
@@ -285,57 +351,84 @@ namespace XavierLab
         Vector4 lastLine;
         float UpdateFrameTimePoint(float point)
         {
+            if (point == 0 || waveRect.width == 0) return 0;
+
             p = point / waveRect.width;
             UpdateTimeStampsAndLine(p);
 
             return p;
         }
 
-
+        // updates RED line - mouse clicks/drags
         void UpdateTimeStampsAndLine(float p)
         {
             time = source.clip.length * p;
             currentTimeStamp = Mathf.FloorToInt(time * 1000);
-            UpdateLastLine(new Vector2(areaWidth * p, 0), new Vector2(areaWidth * p, 100));
+            lastLine = GetLineVector(p);
         }
 
 
         VORecorderFrame editedFrame;
-        void DrawWaveForm()
+        int dots = 0;
+        void DrawWaveForm(Event e)
         {
+            //Event e = Event.current;
             GUILayout.Space(10f);
 
-            var tex = XLSoundUtils.PaintWaveformSpectrum(source.clip, (int)areaWidth, 100, Color.green);
+            Graphics.CopyTexture(waveFormTex, tex);
+
+            if (frames != null)
+            {
+                foreach (VORecorderFrame frame in frames)
+                {
+                    var perc = (frame.frameTime * 0.001f) / source.clip.length;
+                    var thisLine = GetLineVector(perc);
+                    XLSoundUtils.DrawTimeMarkerLine(tex, new Vector2(thisLine.x, thisLine.y), new Vector2(thisLine.z, thisLine.w), Color.gray);
+                }
+            }
+
             if (lastLine != null)
             {
                 XLSoundUtils.DrawTimeMarkerLine(tex, new Vector2(lastLine.x, lastLine.y), new Vector2(lastLine.z, lastLine.w), Color.red);
             }
             var centeredStyle = GUI.skin.GetStyle("Label");
             centeredStyle.alignment = TextAnchor.MiddleCenter;
-            GUILayout.Box(tex, centeredStyle);
+            GUILayout.Label(tex, centeredStyle);
 
             bool isOnBox = false;
+            waveRect.y = GUILayoutUtility.GetLastRect().y;
 
-            if (GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) isOnBox = true;
+            if (waveRect.Contains(Event.current.mousePosition))
+            {
+                isOnBox = true;
+            }
             else isOnBox = false;
 
 
-            if (isOnBox)
+
+            if (isOnBox && (e.type == EventType.MouseDrag || e.type == EventType.MouseUp))
             {
-                Event e = Event.current;
+                L.Log(LogEventType.INT, $"0: {e.rawType}");
+                var point = e.mousePosition.x - waveRect.x;
+                UpdateFrameTimePoint(point);
 
-                if (e.type == EventType.MouseDrag || e.type == EventType.MouseUp)
+                if (e.type == EventType.MouseUp)
                 {
-                    var point = e.mousePosition.x - waveRect.x;
-                    var per = UpdateFrameTimePoint(point);
-                    if (e.type == EventType.MouseUp && isOnBox)
-                    {
-                        PlayAudioFromPercentage(p);
-                    }
-
-                    Repaint();
+                    L.Log(LogEventType.INT, $"2");
+                    PlayAudioFromPercentage(p);
                 }
+                else XLSoundUtils.StopAllClips();
+
+                Repaint();
+
+                //EditorGUILayout.LabelField("Condition:", $"{isOnBox.ToString()}, type: {e.type}");
             }
+
+            //dots = dots > 20 ? 0 : dots + 1;
+            //var str = $"{isOnBox}";
+            //for (int i = 0; i < dots; i++) str += ".";
+            //EditorGUILayout.LabelField("Condition:", $"{str}");
+
 
             if (IsEditingFrame)
             {
@@ -344,6 +437,7 @@ namespace XavierLab
                 if (GUILayout.Button("Done"))
                 {
                     L.Log(LogEventType.BOOL, $"finished editing frame");
+                    SavePrefab();
                     editFrameToken.Cancel();
                 }
                 if (GUILayout.Button("Delete"))
@@ -394,14 +488,14 @@ namespace XavierLab
         }
 
 
-        void UpdateLastLine(Vector2 p1, Vector2 p2)
+        Vector4 GetLineVector(float p)
         {
-            lastLine = new Vector4
+            return new Vector4
             {
-                x = p1.x,
-                y = p1.y,
-                z = p2.x,
-                w = p2.y
+                x = areaWidth * p,
+                y = 0,
+                z = areaWidth * p,
+                w = 100
             };
         }
 
@@ -417,7 +511,7 @@ namespace XavierLab
             if (GUILayout.Button("Preview"))
             {
                 ShowPreview(list);
-                Repaint();
+                //Repaint();
             }
 
             if (nextTexture != null)
