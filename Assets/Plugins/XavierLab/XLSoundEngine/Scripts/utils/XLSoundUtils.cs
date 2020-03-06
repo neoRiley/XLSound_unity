@@ -11,6 +11,7 @@ namespace XavierLab
 {
     public static class XLSoundUtils
     {
+#if UNITY_EDITOR
         public static void PlayClip(AudioClip clip, int startSample, bool loop)
         {
             Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
@@ -850,5 +851,6 @@ namespace XavierLab
 
             tex.Apply();
         }
+#endif
     }
 }

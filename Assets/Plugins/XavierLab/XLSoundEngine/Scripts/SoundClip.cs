@@ -128,6 +128,12 @@ namespace XavierLab
         }
 
 
+        public bool IsPlaying
+        {
+            get => audioSource.isPlaying;
+        }
+
+
         public void PlaySound()
         {
             if (!pitchRange.Equals(0))
@@ -376,7 +382,7 @@ namespace XavierLab
 
             serializedObject.ApplyModifiedProperties();
 
-            
+
             // update prefab AFTER the changed values are applied to the SoundClip object
             if (changed || GUI.changed)
             {

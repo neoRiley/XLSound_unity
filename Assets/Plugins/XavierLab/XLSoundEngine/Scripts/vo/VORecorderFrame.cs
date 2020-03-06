@@ -14,7 +14,9 @@ namespace XavierLab
         {
             get
             {
+#if UNITY_EDITOR
                 if (id.Equals(-1)) id = VORecorderInspector.GetNextVOFrameID();
+#endif
                 return id;
             }
         }

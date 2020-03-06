@@ -164,7 +164,7 @@ namespace XavierLab
                     onMouthChange?.Invoke(VOPositions.SilentMB);
                     OnVOPositionChanged?.Invoke(VOPositions.SilentMB, sound);
 
-                    L.Log(LogEventType.INT, "2");
+                    L.Log(LogEventType.INT, $"PlayVOSound: {sound}");
                     var playTime = DateTime.Now;
                     bool didStartAudio = false;
 
@@ -202,6 +202,18 @@ namespace XavierLab
             {
                 L.Log(LogEventType.ERROR, $"{err.Message}, {err.StackTrace}");
             }
+        }
+
+
+        public static bool IsPlaying(Sounds sound)
+        {
+            SoundClip soundClip = GetSoundClipForSound(sound);
+            if (soundClip != null)
+            {
+                return soundClip.IsPlaying;
+            }
+
+            return false;
         }
 
 
@@ -410,7 +422,7 @@ namespace XavierLab
             SoundClip source = null;
             if (soundPointers.TryGetValue(sound, out GameObject g))
             {
-                source = g.GetComponent<SoundClip>();
+                if (g != null) source = g.GetComponent<SoundClip>();
             }
 
             return source;

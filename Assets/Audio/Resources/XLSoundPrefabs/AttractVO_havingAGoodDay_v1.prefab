@@ -80,18 +80,18 @@ MonoBehaviour:
     texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
   - id: -1
     position: 8
-    frameTime: 166
-    span: 79
+    frameTime: 127
+    span: 40
     texture: {fileID: 2800000, guid: 8617502730ad9264097fe9fec9cfa9a2, type: 3}
   - id: -1
     position: 4
-    frameTime: 215
-    span: 49
+    frameTime: 241
+    span: 114
     texture: {fileID: 2800000, guid: b0afb865b3c3c564d82560c8c6d788dd, type: 3}
   - id: -1
     position: 6
     frameTime: 319
-    span: 104
+    span: 78
     texture: {fileID: 2800000, guid: 532db4b81444bf146af1274336b25d7b, type: 3}
   - id: -1
     position: 3
@@ -100,13 +100,13 @@ MonoBehaviour:
     texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
   - id: -1
     position: 4
-    frameTime: 593
-    span: 199
+    frameTime: 475
+    span: 81
     texture: {fileID: 2800000, guid: b0afb865b3c3c564d82560c8c6d788dd, type: 3}
   - id: -1
     position: 1
     frameTime: 713
-    span: 120
+    span: 238
     texture: {fileID: 2800000, guid: a0d055dce23161e4bb1168aa3ce9d1c7, type: 3}
   finalFrameDelay: 100
 --- !u!82 &3919464549828408270

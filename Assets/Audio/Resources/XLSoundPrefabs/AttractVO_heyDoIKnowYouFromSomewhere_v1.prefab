@@ -115,14 +115,24 @@ MonoBehaviour:
     texture: {fileID: 2800000, guid: 00c4bf2a8f9ebfe4c9f031caceddd0ff, type: 3}
   - id: -1
     position: 1
-    frameTime: 1033
-    span: 155
+    frameTime: 993
+    span: 115
     texture: {fileID: 2800000, guid: a0d055dce23161e4bb1168aa3ce9d1c7, type: 3}
+  - id: -1
+    position: 3
+    frameTime: 1088
+    span: 95
+    texture: {fileID: 2800000, guid: a80adae72fbd8a641a5904dffd701819, type: 3}
   - id: -1
     position: 5
     frameTime: 1237
-    span: 204
+    span: 149
     texture: {fileID: 2800000, guid: 4eb54f640317def49b50e2171c490010, type: 3}
+  - id: -1
+    position: 2
+    frameTime: 1332
+    span: 95
+    texture: {fileID: 2800000, guid: 00c4bf2a8f9ebfe4c9f031caceddd0ff, type: 3}
   finalFrameDelay: 60
 --- !u!82 &7225618064688321126
 AudioSource:
