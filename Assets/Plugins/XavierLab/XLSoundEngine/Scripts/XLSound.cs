@@ -13,6 +13,7 @@ namespace XavierLab
 {
     public class XLSound
     {
+        public static event Action<Sounds> OnVOStarted;
         public static event Action<VOPositions, Sounds> OnVOPositionChanged;
         public static event Action<Sounds> OnVOCompleted;
 
@@ -163,6 +164,7 @@ namespace XavierLab
                     VORecorderFrame frame;
                     onMouthChange?.Invoke(VOPositions.SilentMB);
                     OnVOPositionChanged?.Invoke(VOPositions.SilentMB, sound);
+                    OnVOStarted?.Invoke(sound);
 
                     L.Log(LogEventType.INT, $"PlayVOSound: {sound}");
                     var playTime = DateTime.Now;
@@ -185,8 +187,6 @@ namespace XavierLab
                     }
 
                     await Task.Delay(recorder.finalFrameDelay);
-                    onMouthChange?.Invoke(VOPositions.SilentMB);
-                    OnVOPositionChanged?.Invoke(VOPositions.SilentMB, sound);
                     onComplete?.Invoke();
                     OnVOCompleted?.Invoke(sound);
                 }
