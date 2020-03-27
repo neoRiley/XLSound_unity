@@ -31,7 +31,11 @@ namespace XavierLab
         [RuntimeInitializeOnLoadMethod]
         public static async Task Initialize()
         {
-            L.Log(LogEventType.BOOL, $"{L.Style("XL", LogEventType.ERROR, true)} Sound Engine");
+            L.Log(LogEventType.NORMAL,
+            $"{L.Style("XL", LogEventType.ERROR, true)} " +
+            $"{L.Style("Sound Engine", Clrs.WHITE, true)} " +
+            $"{L.Style("Initialized", LogEventType.BOOL, true, true)}"
+            );
 
             mainMixer = Resources.Load<AudioMixer>("Mixers/Master") as AudioMixer;
 
@@ -167,21 +171,15 @@ namespace XavierLab
                     OnVOStarted?.Invoke(sound);
 
                     L.Log(LogEventType.INT, $"PlayVOSound: {sound}");
-                    var playTime = DateTime.Now;
-                    bool didStartAudio = false;
+
+                    PlaySound(sound);
 
                     while (frames.Count > 0)
                     {
                         frame = frames.Dequeue();
 
+                        while ((soundClip.AudioSource.time * 1000) < frame.frameTime) await Task.Delay(1);
 
-                        if (!didStartAudio)
-                        {
-                            PlaySound(sound);
-                            didStartAudio = true;
-                        }
-
-                        await Task.Delay(frame.span);
                         onMouthChange?.Invoke(frame.position);
                         OnVOPositionChanged?.Invoke(frame.position, sound);
                     }
@@ -200,7 +198,7 @@ namespace XavierLab
             }
             catch (Exception err)
             {
-                L.Log(LogEventType.ERROR, $"{err.Message}, {err.StackTrace}");
+                L.Log(LogEventType.ERROR, $"{err.Message}, {@err.StackTrace}");
             }
         }
 
@@ -261,6 +259,23 @@ namespace XavierLab
                 }
                 else L.Log(LogEventType.ERROR, $"No audioSource component found on {obj.name}");
             }
+        }
+
+
+        /// <summary>
+        /// Stop a sound by fading it out with a transition.  This requires you assign a Fade Out Snapshot to the soundclip
+        /// </summary>
+        /// <param name="sound"></param>
+        /// <param name="duration"></param>
+        public static void StopSound(Sounds sound, float duration = 2.0f)
+        {
+            SoundClip soundClip = GetSoundClipForSound(sound);
+            if (soundClip != null && soundClip.fadeOutSnapshot != null)
+            {
+                soundClip.fadeOutSnapshot.TransitionTo(duration);
+                soundClip.StopAfterDelay(duration);
+            }
+            else L.Log(LogEventType.ERROR, $"Transition not found for {sound}. SoundClip is null and likely needs to be added to a SoundLoader's list of audio clips", true);
         }
 
 

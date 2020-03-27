@@ -95,6 +95,9 @@ namespace XavierLab
         public AudioMixerSnapshot snapshot;
 
         [SerializeField]
+        public AudioMixerSnapshot fadeOutSnapshot;
+
+        [SerializeField]
         [HideInInspector]
         public int tags = 0;
 
@@ -144,6 +147,15 @@ namespace XavierLab
             else audioSource.pitch = 1;
 
             audioSource.Play();
+        }
+
+
+        public async void StopAfterDelay(float delay)
+        {
+            if (!audioSource.isPlaying) return;
+
+            await Task.Delay(Mathf.FloorToInt(delay * 1000));
+            audioSource.Stop();
         }
 
     }
